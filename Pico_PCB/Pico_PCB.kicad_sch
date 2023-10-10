@@ -2879,31 +2879,6 @@
     )
   )
 
-  (symbol (lib_id "Connector:TestPoint") (at 133.35 134.62 270) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
-    (uuid 6492cb9c-b00b-4af2-9bda-4c1d11b1b178)
-    (property "Reference" "TP12" (at 138.43 133.35 90)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-    (property "Value" "TestPoint" (at 138.43 135.89 90)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-    (property "Footprint" "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm" (at 133.35 139.7 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 133.35 139.7 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 54acc8bb-447d-404d-8449-3a4c4f0dc720))
-    (instances
-      (project "Pico_PCB"
-        (path "/080ce183-1edb-4a51-b877-ef257db80548"
-          (reference "TP12") (unit 1)
-        )
-      )
-    )
-  )
-
   (symbol (lib_id "Connector:TestPoint") (at 133.35 68.58 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 6bebcd68-e499-4a05-bdd5-9497b68c2bb9)
