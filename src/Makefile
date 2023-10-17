@@ -11,10 +11,10 @@ TARGET = ordonnanceur
 all: $(TARGET).hex
 
 clean:
-	rm -f *.o $(TARGET).hex $(TARGET)
+	rm -f *.o $(TARGET).hex $(TARGET).elf $(TARGET)
 
 	
-$(TARGET).o: $(TARGET).c
+$(TARGET).o: $(TARGET).c $(TARGET).h
 	$(CC) -mmcu=$(MMCU) -DF_CPU=$(FCPU)L -c -Wall -I. -Os $< -o $@
 	
 $(TARGET).elf: $(TARGET).o
