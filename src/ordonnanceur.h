@@ -8,6 +8,12 @@
 #define CTC1 WGM12
 #define NB_TASK 3
 
+struct task_t{
+    void (*addr)(void);
+    uint16_t sp;
+    int state;
+};
+
 #define SAVE_REGISTER() \
 asm volatile ( \
     "push r0 \n\t"\

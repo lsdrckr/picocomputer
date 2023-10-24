@@ -1,12 +1,4 @@
-// D5 PB0 D4 PD4 D3 PD1
-
 #include "ordonnanceur.h"
-
-struct task_t{
-    void (*start)(void);
-    uint16_t *Spointer;
-    int state;
-};
 
 struct task_t task[3];
 int currentTask;
@@ -24,28 +16,34 @@ void reverseOutput(volatile uint8_t *port, volatile uint8_t pin){
 }
 
 void task0(){
-    _delay_ms(100);
-    setHighOutput(&PORTD, PD7);
-    _delay_ms(100);
-    setLowOutput(&PORTD, PD7);
+    while(1){
+        _delay_ms(100);
+        setHighOutput(&PORTD, PD7);
+        _delay_ms(100);
+        setLowOutput(&PORTD, PD7);
+    }
 }
 
 void task1(){
-    _delay_ms(100);
-    setHighOutput(&PORTD, PD1);
-    _delay_ms(100);
-    setLowOutput(&PORTD, PD1);
+    while(1){
+        _delay_ms(100);
+        setHighOutput(&PORTD, PD1);
+        _delay_ms(100);
+        setLowOutput(&PORTD, PD1);
+    }
 }
 
 void task2(){
-    _delay_ms(100);
-    setHighOutput(&PORTD, PD4);
-    _delay_ms(100);
-    setLowOutput(&PORTD, PD4);
+    while(1){
+        _delay_ms(100);
+        setHighOutput(&PORTD, PD4);
+        _delay_ms(100);
+        setLowOutput(&PORTD, PD4);
+    }
 }
 
 
-void init_minuteur(int diviseur,long periode){
+void initMinuteur(int diviseur,long periode){
     TCCR1A=0;               // Le mode choisi n'utilise pas ce registre
     TCCR1B=(1<<CTC1);       // Réinitialisation du minuteur sur expiration
     switch(diviseur){
@@ -63,6 +61,17 @@ void init_minuteur(int diviseur,long periode){
     TIMSK1=(1<<OCIE1A);     // Comparaison du compteur avec OCR1A
 }
 
+void initTask(int taskId){
+    int save = SP;
+    SP = task[taskId].sp;
+    uint16_t address = (uint16_t)task[taskId].addr;
+    asm volatile("push %0" : : "r" (address & 0x00ff) );
+    asm volatile("push %0" : : "r" ((address & 0xff00)>>8) );
+    SAVE_REGISTER();
+    task[taskId].sp = SP;
+    SP = save;
+}
+
 void scheduler (){
     currentTask ++;
     if(currentTask == NB_TASK) currentTask = 0;
@@ -71,12 +80,11 @@ void scheduler (){
 ISR(TIMER1_COMPA_vect,ISR_NAKED){
     // Sauvegarde du contexte de la tâche interrompue
     SAVE_REGISTER();
-    task[currentTask].Spointer = (uint16_t*) SP;
-    
+    task[currentTask].sp = SP;
     // Appel à l'ordonnanceur
     scheduler();
     // Récupération du contexte de la tâche ré-activée
-    SP = (uint16_t) task[currentTask].Spointer;
+    SP = task[currentTask].sp; 
     RESTORE_REGISTER();
     
     asm volatile("reti");
@@ -85,20 +93,26 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
 void setup(){
     cli();
     
-    task[0].start = task0;
-    *(task[0].Spointer) = 0x8000;
-    task[0].state = 1;
-    
-    task[1].start = task1;
-    *(task[1].Spointer) = 0x6000;
-    task[1].state = 1;
-    
-    task[2].start = task2;
-    *(task[2].Spointer) = 0x4000;
-    task[2].state = 1;
-    
     // currentTask à 0
     currentTask = 0;
+    
+    // Setup des tâches
+    task[0].addr = task0;
+    task[1].addr = task1;
+    task[2].addr = task2;
+    
+    task[0].sp = 0x0600;
+    task[1].sp = 0x0800;
+    task[2].sp = 0x0200;
+    
+    task[0].state = 1;
+    task[1].state = 1;
+    task[2].state = 1;
+    
+    for(int i = 0; i < NB_TASK; i++){
+        initTask(i);
+    }
+    
     // Setup des leds
     DDRD |= (1<<PD7);
     DDRD |= (1<<PD1);
@@ -108,13 +122,13 @@ void setup(){
     setLowOutput(&PORTD, PD4);
     
     // Setup du minuteur 
-    init_minuteur(1024,20);
+    initMinuteur(1024,20);
     
-    sei();
+    sei(); 
 }
 
 int main(){
     setup();
-    while(1){
-    }
+    SP = task[currentTask].sp;
+    task0();
 }
