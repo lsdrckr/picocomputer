@@ -1,6 +1,15 @@
 #include "ordonnanceur.h"
 
-struct task_t task[3];
+void task0();
+void task1();
+void task2();
+
+struct task_t task[3] = {
+    {task0, 0x0600, 1},
+    {task1, 0x0700, 1},
+    {task2, 0x0800, 1}
+    
+};
 int currentTask;
 
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin){
@@ -96,19 +105,7 @@ void setup(){
     // currentTask à 0
     currentTask = 0;
     
-    // Setup des tâches
-    task[0].addr = task0;
-    task[1].addr = task1;
-    task[2].addr = task2;
-    
-    task[0].sp = 0x0600;
-    task[1].sp = 0x0800;
-    task[2].sp = 0x0200;
-    
-    task[0].state = 1;
-    task[1].state = 1;
-    task[2].state = 1;
-    
+    // Setup des tâches    
     for(int i = 0; i < NB_TASK; i++){
         initTask(i);
     }
