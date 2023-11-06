@@ -1,15 +1,6 @@
 #include "ordonnanceur.h"
 
-void task0();
-void task1();
-void task2();
-
-struct task_t task[3] = {
-    {task0, 0x0600, 1},
-    {task1, 0x0700, 1},
-    {task2, 0x0800, 1}
-    
-};
+struct task_t task[3];
 int currentTask;
 
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin){
@@ -26,28 +17,19 @@ void reverseOutput(volatile uint8_t *port, volatile uint8_t pin){
 
 void task0(){
     while(1){
-        _delay_ms(100);
-        setHighOutput(&PORTD, PD7);
-        _delay_ms(100);
-        setLowOutput(&PORTD, PD7);
+        reverseOutput(&PORTD, PD7);
     }
 }
 
 void task1(){
     while(1){
-        _delay_ms(100);
-        setHighOutput(&PORTD, PD1);
-        _delay_ms(100);
-        setLowOutput(&PORTD, PD1);
+        reverseOutput(&PORTD, PD1);
     }
 }
 
 void task2(){
     while(1){
-        _delay_ms(100);
-        setHighOutput(&PORTD, PD4);
-        _delay_ms(100);
-        setLowOutput(&PORTD, PD4);
+        reverseOutput(&PORTD, PD4);
     }
 }
 
@@ -105,7 +87,19 @@ void setup(){
     // currentTask à 0
     currentTask = 0;
     
-    // Setup des tâches    
+    // Setup des tâches
+    task[0].addr = task0;
+    task[1].addr = task1;
+    task[2].addr = task2;
+    
+    task[0].sp = 0x0600;
+    task[1].sp = 0x0800;
+    task[2].sp = 0x0200;
+    
+    task[0].state = 1;
+    task[1].state = 1;
+    task[2].state = 1;
+    
     for(int i = 0; i < NB_TASK; i++){
         initTask(i);
     }
