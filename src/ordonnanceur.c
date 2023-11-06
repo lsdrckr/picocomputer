@@ -15,19 +15,41 @@ void reverseOutput(volatile uint8_t *port, volatile uint8_t pin){
     *port ^= (1<<pin);
 }
 
+void delay(int taskId, int delayms){
+    
+    task[taskId].state = 0;
+    task[taskId].delayCounter = delayms;
+}
+
+void delayUpdate(){
+    for(int i = 0; i < NB_TASK; i++){
+        if(task[currentTask].delayCounter > 0){
+            task[currentTask].delayCounter -= 20;
+        }else{
+            task[currentTask].state = 1;
+            task[currentTask].delayCounter = 0;
+        }
+    }
+}
+
 void task0(){
+    DDRD |= (1<<PD7);
     while(1){
+        delay(0, 1000);
         reverseOutput(&PORTD, PD7);
     }
 }
 
 void task1(){
+    DDRD |= (1<<PD1);
     while(1){
+        _delay_ms(1000);
         reverseOutput(&PORTD, PD1);
     }
 }
 
 void task2(){
+    DDRD |= (1<<PD4);
     while(1){
         reverseOutput(&PORTD, PD4);
     }
@@ -64,8 +86,10 @@ void initTask(int taskId){
 }
 
 void scheduler (){
-    currentTask ++;
-    if(currentTask == NB_TASK) currentTask = 0;
+    do{
+        currentTask ++;
+        if(currentTask == NB_TASK) currentTask = 0;
+    }while(task[currentTask].state == 0);                // Attention si tous les processus sont à l'arrêt
 }
 
 ISR(TIMER1_COMPA_vect,ISR_NAKED){
@@ -73,7 +97,9 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     SAVE_REGISTER();
     task[currentTask].sp = SP;
     // Appel à l'ordonnanceur
-    scheduler();
+    scheduler(); 
+    // Gestion des delay des tâches
+    delayUpdate();
     // Récupération du contexte de la tâche ré-activée
     SP = task[currentTask].sp; 
     RESTORE_REGISTER();
@@ -103,15 +129,7 @@ void setup(){
     for(int i = 0; i < NB_TASK; i++){
         initTask(i);
     }
-    
-    // Setup des leds
-    DDRD |= (1<<PD7);
-    DDRD |= (1<<PD1);
-    DDRD |= (1<<PD4);
-    setLowOutput(&PORTD, PD7);
-    setLowOutput(&PORTD, PD1);
-    setLowOutput(&PORTD, PD4);
-    
+ 
     // Setup du minuteur 
     initMinuteur(1024,20);
     

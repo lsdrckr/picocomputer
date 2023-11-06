@@ -12,6 +12,7 @@ struct task_t{
     void (*addr)(void);
     uint16_t sp;
     int state;
+    int delayCounter;
 };
 
 #define SAVE_REGISTER() \
