@@ -8,12 +8,22 @@
 #define CTC1 WGM12
 #define NB_TASK 3
 
-struct task_t{
+#define SLEEP 0
+#define AWAKE 1
+
+#define DELAY_SLEEPING 0
+
+typedef struct sleep_t{
+    int reason;
+    int data;
+}sleep_t;
+
+typedef struct task_t{
     void (*addr)(void);
     uint16_t sp;
     int state;
-    int delayCounter;
-};
+    sleep_t sleep;
+}task_t;
 
 #define SAVE_REGISTER() \
 asm volatile ( \
