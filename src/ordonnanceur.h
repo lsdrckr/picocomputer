@@ -8,20 +8,21 @@
 #define CTC1 WGM12
 #define NB_TASK 3
 
+#define STARTED 2
 #define SLEEP 0
 #define AWAKE 1
 
 #define DELAY_SLEEPING 0
 
 typedef struct sleep_t{
-    int reason;
-    int data;
+    uint8_t reason;
+    uint16_t data;
 }sleep_t;
 
 typedef struct task_t{
     void (*addr)(void);
     uint16_t sp;
-    int state;
+    uint8_t state;
     sleep_t sleep;
 }task_t;
 
@@ -29,10 +30,8 @@ typedef struct task_t{
 asm volatile ( \
     "push r0 \n\t"\
     "in r0, __SREG__ \n\t"\
-    "cli \n\t"\
     "push r0 \n\t"\
     "push r1 \n\t"\
-    "clr r1 \n\t"\
     "push r2 \n\t"\
     "push r3 \n\t"\
     "push r4 \n\t"\
