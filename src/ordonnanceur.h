@@ -8,7 +8,6 @@
 #define CTC1 WGM12
 #define NB_TASK 3
 
-#define STARTED 2
 #define SLEEP 0
 #define AWAKE 1
 

@@ -25,7 +25,7 @@ void task1(){ // Led D3
     DDRD |= (1<<PD1);
     while(1){
         PORTD ^= 0x02;
-        wait_ms(2000);
+        wait_ms(500);
     }
 }
 
