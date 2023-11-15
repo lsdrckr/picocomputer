@@ -70,7 +70,14 @@ void initTask(uint8_t taskId){
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
         if(task[i].state == SLEEP && task[i].sleep.reason == DELAY_SLEEPING){
-            task[i].sleep.data -= 20;
+            
+            // Récupérer la différence de temps
+            uint16_t difftime_ms = 20;
+            if(TCNT1 != 0){
+                difftime_ms = ((TCNT1*10 / OCR1A) * 20)/10; // On multiplie par 10 pour ne pas avoir de problème avec les nombres flottants
+            }
+            task[i].sleep.data -= difftime_ms;
+            
             if(task[i].sleep.data <= 0){
                 task[i].state = AWAKE;
             }
