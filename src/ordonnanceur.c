@@ -3,19 +3,21 @@
 task_t task[3];
 uint8_t currentTask=0;
 
-void wait(uint8_t taskId, uint16_t wait_ms){
-    task[taskId].state = SLEEP;
-    sleep_t wait;
-    wait.reason = DELAY_SLEEPING;
-    wait.data = wait_ms;
-    task[taskId].sleep = wait;
+void wait(uint16_t wait_ms){
+    cli();
+    task[currentTask].state = SLEEP;
+    sleep_t sleep;
+    sleep.reason = DELAY_SLEEPING;
+    sleep.data = wait_ms;
+    task[currentTask].sleep = sleep;
+    TCNT1 = 0;
+    sei();
+    TIMER1_COMPA_vect();
 }
 
-void task0(){ // Led D5
-    DDRD |= (1<<PD7);
+void task2(){ // Led D5 processus défault ne dort jamais
     while(1){
-        PORTD ^= 0x80;
-        _delay_ms(2000);
+        _delay_ms(100);
     }
 }
 
@@ -23,15 +25,15 @@ void task1(){ // Led D3
     DDRD |= (1<<PD1);
     while(1){
         PORTD ^= 0x02;
-        _delay_ms(200);
+        wait(1000);
     }
 }
 
-void task2(){ // Led D4
+void task0(){ // Led D4
     DDRD |= (1<<PD4);
     while(1){
         PORTD ^= 0x10;
-        _delay_ms(10);
+        wait(1000);
     }
 }
 
@@ -49,7 +51,7 @@ void initMinuteur(int diviseur,long periode){
     // Un pas de compteur prend diviseur/F_CPU secondes.
     // Pour une periode en millisecondes, il faut (periode/1000)/(diviseur/F_CPU) pas
     // soit (periode*F_CPU)/(1000*diviseur)
-    OCR1A=F_CPU/1000*periode/diviseur;          // Calcul du pas
+    OCR1A= F_CPU/1000*periode/diviseur;          // Calcul du pas
     TCNT1=0;                                    // Compteur initialisé
     TIMSK1=(1<<OCIE1A);                         // Comparaison du compteur avec OCR1A
 }
@@ -66,8 +68,20 @@ void initTask(uint8_t taskId){
 }
 
 void scheduler (){
-    currentTask ++;
-    if(currentTask == NB_TASK) currentTask = 0;               // Attention si tous les processus sont à l'arrêt
+    for(int i=0; i<NB_TASK; i++){
+        if(task[i].state == SLEEP){
+            if(task[i].sleep.data <= 0){
+                task[i].state = AWAKE;
+            }else{
+                task[i].sleep.data -= 20;
+            }
+        }
+    }
+    
+    do{
+        currentTask ++;
+        if(currentTask >= NB_TASK) currentTask = 0; // Attention si tous les processus sont à l'arrêt
+    }while(task[currentTask].state == SLEEP);
 }
 
 ISR(TIMER1_COMPA_vect,ISR_NAKED){
@@ -75,10 +89,12 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     // Sauvegarde du contexte de la tâche interrompue
     SAVE_REGISTER();
     task[currentTask].sp = SP;
-
+    
+    PORTD ^= 0x80;
     // Appel à l'ordonnanceur
-    PORTC ^= (1<<PC0);
     scheduler();
+    
+    // Réinitialisation du timer 
     
     // Récupération du contexte de la tâche ré-activée
     SP = task[currentTask].sp; 
@@ -105,12 +121,12 @@ void setup(){
  
     // Setup du minuteur 
     initMinuteur(1024,20);
-    
-    sei(); 
 }
 
 int main(){
+    DDRD |= (1<<PD7);
     setup();
     SP = task[currentTask].sp;
+    sei(); 
     task0();
 }
