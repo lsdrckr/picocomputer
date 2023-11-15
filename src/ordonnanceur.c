@@ -74,7 +74,8 @@ void scheduler (){
             // Récupérer la différence de temps
             uint16_t difftime_ms = 20;
             if(TCNT1 != 0){
-                difftime_ms = ((TCNT1*10 / OCR1A) * 20)/10; // On multiplie par 10 pour ne pas avoir de problème avec les nombres flottants
+                difftime_ms = TCNT1*200/OCR1A/10; // On multiplie par 10 pour ne pas avoir de problème avec les nombres flottants
+                TCNT1 = 0;
             }
             task[i].sleep.data -= difftime_ms;
             
