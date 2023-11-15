@@ -3,12 +3,12 @@
 task_t task[3];
 uint8_t currentTask=0;
 
-void wait(uint16_t wait_ms){
+void wait_ms(uint16_t ms){
     cli();
     task[currentTask].state = SLEEP;
     sleep_t sleep;
     sleep.reason = DELAY_SLEEPING;
-    sleep.data = wait_ms;
+    sleep.data = ms;
     task[currentTask].sleep = sleep;
     TCNT1 = 0;
     sei();
@@ -17,7 +17,7 @@ void wait(uint16_t wait_ms){
 
 void task2(){ // Led D5 processus défault ne dort jamais
     while(1){
-        _delay_ms(100);
+        _delay_ms(10);
     }
 }
 
@@ -25,7 +25,7 @@ void task1(){ // Led D3
     DDRD |= (1<<PD1);
     while(1){
         PORTD ^= 0x02;
-        wait(1000);
+        wait_ms(2000);
     }
 }
 
@@ -33,7 +33,7 @@ void task0(){ // Led D4
     DDRD |= (1<<PD4);
     while(1){
         PORTD ^= 0x10;
-        wait(1000);
+        wait_ms(1000);
     }
 }
 
@@ -69,11 +69,10 @@ void initTask(uint8_t taskId){
 
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
-        if(task[i].state == SLEEP){
+        if(task[i].state == SLEEP && task[i].sleep.reason == DELAY_SLEEPING){
+            task[i].sleep.data -= 20;
             if(task[i].sleep.data <= 0){
                 task[i].state = AWAKE;
-            }else{
-                task[i].sleep.data -= 20;
             }
         }
     }
@@ -93,8 +92,6 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     PORTD ^= 0x80;
     // Appel à l'ordonnanceur
     scheduler();
-    
-    // Réinitialisation du timer 
     
     // Récupération du contexte de la tâche ré-activée
     SP = task[currentTask].sp; 
