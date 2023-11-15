@@ -17,7 +17,7 @@ void wait_ms(uint16_t ms){
 
 void task2(){ // Led D5 processus défault ne dort jamais
     while(1){
-        _delay_ms(10);
+        _delay_ms(50);
     }
 }
 
@@ -97,8 +97,8 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     SAVE_REGISTER();
     task[currentTask].sp = SP;
     
-    PORTD ^= 0x80;
     // Appel à l'ordonnanceur
+    PORTD ^= 0x80;
     scheduler();
     
     // Récupération du contexte de la tâche ré-activée
