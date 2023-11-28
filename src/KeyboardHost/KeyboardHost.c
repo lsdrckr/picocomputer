@@ -41,6 +41,7 @@
  */
 
 int upper = 0;
+int shiftKey = 0;
 
 int main(void)
 {
@@ -187,6 +188,53 @@ void EVENT_USB_Host_DeviceEnumerationFailed(const uint8_t ErrorCode,
  *  contents on the board LEDs and via the serial port.
  */
 
+char lowerKey(char key, uint8_t KeyCode){
+	if((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z)){
+		return key + 0x20;
+	}
+	
+	switch (key){
+		case '1':
+			return '&';
+		case '2':
+			return 'e'; // char é
+		case '3':
+			return '"';
+		case '4':
+			return 0x27; // char '
+		case '5':
+			return '(';
+		case '6':
+			return '-';
+		case '7':
+			return 'e'; // char è
+		case '8':
+			return '_';
+		case '9':
+			return 'c'; // char ç
+		case '0':
+			return 'a'; // char à
+		case '?':
+			return ',';
+		case '.':
+			return ';';
+		case '/':
+			return ':';
+		case 0x80: // char §
+			return '!';
+		case '%':
+			return 'u'; // char ù
+		case 0x81: // char µ
+			return '*';
+		case 0x82: // char ¨
+			return '^';
+		case 0x83: // char °
+			return ')';
+		default: 
+			return  key;
+	}
+}
+
 void processKeyUp(uint8_t KeyCode){
 	clearLeds();
 }
@@ -216,15 +264,71 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	{
 		PressedKey = '\n';
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_TAB){
+	else if (KeyCode == HID_KEYBOARD_SC_TAB)
+	{
 		PressedKey = '\t';
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_DELETE){
+	else if (KeyCode == HID_KEYBOARD_SC_DELETE)
+	{
 		PressedKey = 0x7f;
 	}
 	else if (KeyCode == HID_KEYBOARD_SC_SEMICOLON_AND_COLON)
 	{
 		PressedKey = 'M';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN)
+	{
+		PressedKey = '<';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN)
+	{
+		PressedKey = '>';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK)
+	{
+		PressedKey = '?';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_SEMICOLON_AND_COLON)
+	{
+		PressedKey = ':';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE)
+	{
+		PressedKey = '"';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_BACKSLASH_AND_PIPE)
+	{
+		PressedKey = '|';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_OPENING_BRACKET_AND_OPENING_BRACE)
+	{
+		PressedKey = '{';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_CLOSING_BRACKET_AND_CLOSING_BRACE)
+	{
+		PressedKey = '}';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_EQUAL_AND_PLUS)
+	{
+		PressedKey = '+';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE)
+	{
+		PressedKey = '_';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_KEYPAD_OPENING_BRACE)
+	{
+		PressedKey = '^';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_KEYPAD_CLOSING_BRACE)
+	{
+		PressedKey = 0x82;
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_BACKSPACE){
+		PressedKey = 0x08;
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_ESCAPE){
+		PressedKey = 0x1b;
 	}
 	else if (KeyCode == HID_KEYBOARD_SC_CAPS_LOCK)
 	{
@@ -233,9 +337,6 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 		}else {
 			upper = 1;
 		}
-	}
-	else if (Modifier & (1 << 1)){
-		PressedKey = 0xff;
 	}
 		
 	// Qwerty to Azerty
@@ -253,18 +354,57 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 			PressedKey = 'Z';
 			break;
 		case 'M':
-			PressedKey = ',';
+			PressedKey = '?';
+			break;
+		case '<':
+			PressedKey = '.';
+			break;
+		case '>':
+			PressedKey = '/';
+			break;
+		case '?':
+			PressedKey = 0x80;
+			break;
+		case ':':
+			PressedKey = 'M';
+			break;
+		case '"':
+			PressedKey = '%';
+			break;
+		case '|':
+			PressedKey = 0x81;
+			break;
+		case '{':
+			PressedKey = 0x82;
+			break;
+		case '}': 
+			PressedKey = '$';
+			break;
+		case '_':
+			PressedKey = 0x83;
+		case 0x82:
+			PressedKey = 0x83;
+		case '^':
+			PressedKey = 0x82;
 			break;
 		default:
 			break;
 	}
 		
-	// Maj
-		
-	if (upper == 0){
-		if((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z)){
-			PressedKey = PressedKey + 0x20;
-		}
+	// Upper Cast
+	
+	if((Modifier & HID_KEYBOARD_MODIFIER_LEFTSHIFT) || (Modifier & HID_KEYBOARD_MODIFIER_RIGHTSHIFT)){
+		shiftKey = 1;
+	}
+	else{
+		shiftKey = 0;
+	}
+	
+	if (upper == 0 && !shiftKey){
+		PressedKey = lowerKey(PressedKey, KeyCode);
+	}
+	else if (upper == 1 && shiftKey){
+		PressedKey = lowerKey(PressedKey, KeyCode);
 	}
 	
 	printLeds(PressedKey);
