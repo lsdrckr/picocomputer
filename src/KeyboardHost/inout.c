@@ -35,3 +35,4 @@ void clearLeds(){
         setLowOutput(&PORTC, leds[i]);
     }
 }
+

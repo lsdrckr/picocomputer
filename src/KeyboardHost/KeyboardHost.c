@@ -40,6 +40,8 @@
  *  enters a loop to run the application tasks in sequence.
  */
 
+int upper = 0;
+
 int main(void)
 {
 	SetupHardware();
@@ -184,6 +186,93 @@ void EVENT_USB_Host_DeviceEnumerationFailed(const uint8_t ErrorCode,
 /** Task to read in and processes the next report from the attached device, displaying the report
  *  contents on the board LEDs and via the serial port.
  */
+
+void processKeyUp(uint8_t KeyCode){
+	clearLeds();
+	
+	// if(KeyCode == HID_KEYBOARD_SC_LEFT_SHIFT || KeyCode == HID_KEYBOARD_SC_RIGHT_SHIFT){
+	// 	printLeds(0xff);
+	// 	if(upper){
+	// 		upper = 0;
+	// 	}else{
+	// 		upper = 1;
+	// 	}
+	// }
+}
+
+void processKeyDown(uint8_t KeyCode){
+	
+	char PressedKey = 0;
+	
+	if ((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z))
+	{
+		PressedKey = (KeyCode - HID_KEYBOARD_SC_A) + 'A';
+	}
+		else if ((KeyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION) &
+			(KeyCode  < HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS))
+	{
+		PressedKey = (KeyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + '1';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS)
+	{
+		PressedKey = '0';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_SPACE)
+	{
+		PressedKey = ' ';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_ENTER)
+	{
+		PressedKey = '\n';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_SEMICOLON_AND_COLON)
+	{
+		PressedKey = 'M';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_CAPS_LOCK)
+	{
+		if(upper){
+			upper = 0;
+		}else {
+			upper = 1;
+		}
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_LEFT_SHIFT){
+		printLeds(0xff);
+	}
+		
+	// Qwerty to Azerty
+	switch (PressedKey) {
+		case 'A':
+			PressedKey = 'Q';
+			break;
+		case 'Z':
+			PressedKey = 'W';
+			break;
+		case 'Q':
+			PressedKey = 'A';
+			break;
+		case 'W':
+			PressedKey = 'Z';
+			break;
+		case 'M':
+			PressedKey = ',';
+			break;
+		default:
+			break;
+	}
+		
+	// Maj
+		
+	if (upper == 0){
+		if((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z)){
+			PressedKey = PressedKey + 0x20;
+		}
+	}
+	
+	printLeds(PressedKey);
+}
+
 void KeyboardHost_Task(void)
 {
 	if (USB_HostState != HOST_STATE_Configured)
@@ -207,50 +296,18 @@ void KeyboardHost_Task(void)
 	/* Ensure pipe contains data before trying to read from it */
 	if (Pipe_IsReadWriteAllowed())
 	{
-		USB_KeyboardReport_Data_t KeyboardReport;
-
+		USB_KeyboardReport_Data_t keyboardReport;
+		
 		/* Read in keyboard report data */
-		Pipe_Read_Stream_LE(&KeyboardReport, sizeof(KeyboardReport), NULL);
+		Pipe_Read_Stream_LE(&keyboardReport, sizeof(keyboardReport), NULL);
 
-		/* Indicate if the modifier byte is non-zero (special key such as shift is being pressed) */
-		LEDs_ChangeLEDs(LEDS_LED1, (KeyboardReport.Modifier) ? LEDS_LED1 : 0);
-
-		uint8_t KeyCode = KeyboardReport.KeyCode[0];
-
-		/* Check if a key has been pressed */
-		if (KeyCode)
-		{
-			/* Toggle status LED to indicate keypress */
-			LEDs_ToggleLEDs(LEDS_LED2);
-
-			char PressedKey = 0;
-
-			/* Retrieve pressed key character if alphanumeric */
-			if ((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z))
-			{
-				PressedKey = (KeyCode - HID_KEYBOARD_SC_A) + 'A';
-			}
-			else if ((KeyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION) &
-					 (KeyCode  < HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS))
-			{
-				PressedKey = (KeyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + '1';
-			}
-			else if (KeyCode == HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS)
-			{
-				PressedKey = '0';
-			}
-			else if (KeyCode == HID_KEYBOARD_SC_SPACE)
-			{
-				PressedKey = ' ';
-			}
-			else if (KeyCode == HID_KEYBOARD_SC_ENTER)
-			{
-				PressedKey = '\n';
-			}
-
-			/* Print the pressed key character out through the serial port if valid */
-			if (PressedKey)
-				printLeds(PressedKey);
+		uint8_t KeyCode = keyboardReport.KeyCode[0];
+		
+		// Vérifier si la touche est pressée
+		if (KeyCode){
+			processKeyDown(KeyCode);
+		}else{
+			processKeyUp(KeyCode);
 		}
 	}
 
