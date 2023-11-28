@@ -189,18 +189,9 @@ void EVENT_USB_Host_DeviceEnumerationFailed(const uint8_t ErrorCode,
 
 void processKeyUp(uint8_t KeyCode){
 	clearLeds();
-	
-	// if(KeyCode == HID_KEYBOARD_SC_LEFT_SHIFT || KeyCode == HID_KEYBOARD_SC_RIGHT_SHIFT){
-	// 	printLeds(0xff);
-	// 	if(upper){
-	// 		upper = 0;
-	// 	}else{
-	// 		upper = 1;
-	// 	}
-	// }
 }
 
-void processKeyDown(uint8_t KeyCode){
+void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	
 	char PressedKey = 0;
 	
@@ -225,6 +216,12 @@ void processKeyDown(uint8_t KeyCode){
 	{
 		PressedKey = '\n';
 	}
+	else if (KeyCode == HID_KEYBOARD_SC_TAB){
+		PressedKey = '\t';
+	}
+	else if (KeyCode == HID_KEYBOARD_SC_DELETE){
+		PressedKey = 0x7f;
+	}
 	else if (KeyCode == HID_KEYBOARD_SC_SEMICOLON_AND_COLON)
 	{
 		PressedKey = 'M';
@@ -237,8 +234,8 @@ void processKeyDown(uint8_t KeyCode){
 			upper = 1;
 		}
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_LEFT_SHIFT){
-		printLeds(0xff);
+	else if (Modifier & (1 << 1)){
+		PressedKey = 0xff;
 	}
 		
 	// Qwerty to Azerty
@@ -302,10 +299,11 @@ void KeyboardHost_Task(void)
 		Pipe_Read_Stream_LE(&keyboardReport, sizeof(keyboardReport), NULL);
 
 		uint8_t KeyCode = keyboardReport.KeyCode[0];
+		uint8_t Modifier = keyboardReport.Modifier;
 		
 		// Vérifier si la touche est pressée
 		if (KeyCode){
-			processKeyDown(KeyCode);
+			processKeyDown(KeyCode, Modifier);
 		}else{
 			processKeyUp(KeyCode);
 		}
