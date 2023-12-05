@@ -3,93 +3,6 @@
 task_t task[NB_TASK];
 uint8_t currentTask=0;
 
-void wait_ms(uint16_t ms){
-    cli();
-    task[currentTask].state = SLEEP;
-    sleep_t sleep;
-    sleep.reason = DELAY_SLEEPING;
-    sleep.data = ms;
-    task[currentTask].sleep = sleep;
-    TCNT1 = 0;
-    sei();
-    TIMER1_COMPA_vect();
-}
-
-void task0(){ // Led D5 processus défault ne dort jamais
-    while(1){
-        _delay_ms(50);
-    }
-}
-
-void readSerial(){ // Debug : Led CS5 PD4
-    
-    // Debug :
-    // DDRD |= (1<<PD4);
-    // while(1){
-    //     PORTD ^= (1<<PD4);
-    //     wait_ms(500);
-    // }
-    
-    
-}
-
-void writeSerial(){ // Debug : Led CS2 PC0
-    // Debug :
-    // DDRC |= (1<<PC0);
-    // while(1){
-    //     PORTC ^= (1<<PC0);
-    //     wait_ms(500);
-    // }
-}
-
-void WriteMatrice(){ // Debug : Led CS3 PC3
-    // Debug :
-    // DDRC |= (1<<PC3);
-    // while(1){
-    //     PORTC ^= (1<<PC3);
-    //     wait_ms(500);
-    // }
-}
-
-void Write7Segment(){ // Debug : Led CS4 PD1
-    // Debug : 
-    // DDRD |= (1<<PD1);
-    // while(1){
-    //     PORTD ^= (1<<PD1);
-    //     wait_ms(500);
-    // }
-}
-
-
-void initMinuteur(int diviseur,long periode){
-    TCCR1A=0;                                     // Le mode choisi n'utilise pas ce registre
-    TCCR1B=(1<<CTC1);                             // Réinitialisation du minuteur sur expiration
-    switch(diviseur){
-        case    8: TCCR1B |= (1<<CS11); break;
-        case   64: TCCR1B |= (1<<CS11 | 11<<CS10); break;
-        case  256: TCCR1B |= (1<<CS12); break;
-        case 1024: TCCR1B |= (1<<CS12 | 1<<CS10); break;
-    }
-    // Un cycle prend 1/F_CPU secondes.
-    // Un pas de compteur prend diviseur/F_CPU secondes.
-    // Pour une periode en millisecondes, il faut (periode/1000)/(diviseur/F_CPU) pas
-    // soit (periode*F_CPU)/(1000*diviseur)
-    OCR1A= F_CPU/1000*periode/diviseur;          // Calcul du pas
-    TCNT1=0;                                    // Compteur initialisé
-    TIMSK1=(1<<OCIE1A);                         // Comparaison du compteur avec OCR1A
-}
-
-void initTask(uint8_t taskId){
-    uint16_t save = SP;
-    SP = task[taskId].sp;
-    uint16_t address = (uint16_t)task[taskId].addr;
-    asm volatile("push %0" : : "r" (address & 0x00ff) );
-    asm volatile("push %0" : : "r" ((address & 0xff00)>>8) );
-    SAVE_REGISTER();
-    task[taskId].sp = SP;
-    SP = save;
-}
-
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
         if(task[i].state == SLEEP && task[i].sleep.reason == DELAY_SLEEPING){
@@ -130,6 +43,130 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     asm volatile("reti");
 }
 
+void initSPI(){
+
+    // MISO MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
+    DDRB |= (1<<MISO);
+    DDRB |= (1<<MOSI);
+    DDRB |= (1<<SCK);
+    DDRC |= (1<<SS2);
+    DDRC |= (1<<SS3);
+    DDRD |= (1<<SS4);
+    DDRD |= (1<<SS5);
+    DDRD |= (1<<SS6);
+
+    // On sélectionne aucun chip
+    PORTC |= (1<<SS2);
+    PORTC |= (1<<SS3);
+    PORTD |= (1<<SS4);
+    PORTD |= (1<<SS5);
+    PORTD |= (1<<SS6);
+
+    // Configurer le registre SPCR (SPI Control Register)
+    SPCR |= (1 << SPE) | (1 << MSTR);
+
+    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 0 SPI2X 0
+    SPCR |= (1 << SPR1); 
+    SPCR &= ~(1 << SPR0);
+    SPSR &= ~(1 << SPI2X);
+}
+
+uint8_t transferSPI(volatile uint8_t *ssPort, volatile uint8_t ss, uint8_t data) {
+    cli();
+    // Abaisser la ligne SS pour sélectionner le périphérique
+    *ssPort &= ~(1 << ss);
+
+    // Charger les données dans le registre de données
+    SPDR = data;
+
+    // Attendre que la transmission soit terminée
+    while (!(SPSR & (1 << SPIF))) {}
+
+    // Lever la ligne SS pour désélectionner le périphérique
+    *ssPort |= (1 << ss);
+
+    // Retourner les données reçues
+    sei();
+    return SPDR;
+}
+
+void wait(uint8_t reason, uint16_t data){
+    cli();
+    task[currentTask].state = SLEEP;
+    sleep_t sleep;
+    sleep.reason = reason;
+    sleep.data = data;
+    task[currentTask].sleep = sleep;
+    TCNT1 = 0;
+    sei();
+    TIMER1_COMPA_vect();
+}
+
+void task0(){ // processus défault ne dort jamais
+    while(1){
+        _delay_ms(100);
+    }
+}
+
+void readSerial(){
+        while(1){
+        _delay_ms(100);
+    }
+}
+
+void writeSerial(){
+        while(1){
+        _delay_ms(100);
+    }
+}
+
+void WriteMatrice(){ 
+        while(1){
+        _delay_ms(100);
+    }
+}
+
+void Write7Segment(){
+
+    initSPI();
+
+    while(1){
+        // Reset de l'afficheur
+        transferSPI(&PORTC, SS2, 0x76);
+        _delay_ms(100);
+    }
+}
+
+
+void initMinuteur(int diviseur,long periode){
+    TCCR1A=0;                                     // Le mode choisi n'utilise pas ce registre
+    TCCR1B=(1<<CTC1);                             // Réinitialisation du minuteur sur expiration
+    switch(diviseur){
+        case    8: TCCR1B |= (1<<CS11); break;
+        case   64: TCCR1B |= (1<<CS11 | 11<<CS10); break;
+        case  256: TCCR1B |= (1<<CS12); break;
+        case 1024: TCCR1B |= (1<<CS12 | 1<<CS10); break;
+    }
+    // Un cycle prend 1/F_CPU secondes.
+    // Un pas de compteur prend diviseur/F_CPU secondes.
+    // Pour une periode en millisecondes, il faut (periode/1000)/(diviseur/F_CPU) pas
+    // soit (periode*F_CPU)/(1000*diviseur)
+    OCR1A= F_CPU/1000*periode/diviseur;          // Calcul du pas
+    TCNT1=0;                                    // Compteur initialisé
+    TIMSK1=(1<<OCIE1A);                         // Comparaison du compteur avec OCR1A
+}
+
+void initTask(uint8_t taskId){
+    uint16_t save = SP;
+    SP = task[taskId].sp;
+    uint16_t address = (uint16_t)task[taskId].addr;
+    asm volatile("push %0" : : "r" (address & 0x00ff) );
+    asm volatile("push %0" : : "r" ((address & 0xff00)>>8) );
+    SAVE_REGISTER();
+    task[taskId].sp = SP;
+    SP = save;
+}
+
 void setup(){
     
     // Setup des tâches
@@ -156,7 +193,6 @@ void setup(){
 }
 
 int main(){
-    DDRD |= (1<<PD7);
     setup();
     SP = task[currentTask].sp;
     sei(); 
