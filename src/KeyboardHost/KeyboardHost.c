@@ -188,8 +188,8 @@ void EVENT_USB_Host_DeviceEnumerationFailed(const uint8_t ErrorCode,
  *  contents on the board LEDs and via the serial port.
  */
 
-char lowerKey(char key, uint8_t KeyCode){
-	if((KeyCode >= HID_KEYBOARD_SC_A) && (KeyCode <= HID_KEYBOARD_SC_Z)){
+char lowerKey(char key){
+	if((key >= 'A') && (key <= 'Z')){
 		return key + 0x20;
 	}
 	
@@ -228,8 +228,12 @@ char lowerKey(char key, uint8_t KeyCode){
 			return '*';
 		case 0x82: // char ¨
 			return '^';
-		case 0x83: // char °
+		case 0x83: // char £
+			return '$';
+		case 0x84: // char °
 			return ')';
+		case '+':
+			return '=';
 		default: 
 			return  key;
 	}
@@ -272,10 +276,6 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	{
 		PressedKey = 0x7f;
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_SEMICOLON_AND_COLON)
-	{
-		PressedKey = 'M';
-	}
 	else if (KeyCode == HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN)
 	{
 		PressedKey = '<';
@@ -316,14 +316,6 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	{
 		PressedKey = '_';
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_KEYPAD_OPENING_BRACE)
-	{
-		PressedKey = '^';
-	}
-	else if (KeyCode == HID_KEYBOARD_SC_KEYPAD_CLOSING_BRACE)
-	{
-		PressedKey = 0x82;
-	}
 	else if (KeyCode == HID_KEYBOARD_SC_BACKSPACE){
 		PressedKey = 0x08;
 	}
@@ -363,7 +355,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 			PressedKey = '/';
 			break;
 		case '?':
-			PressedKey = 0x80;
+			PressedKey = 0x80; // char §
 			break;
 		case ':':
 			PressedKey = 'M';
@@ -372,21 +364,16 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 			PressedKey = '%';
 			break;
 		case '|':
-			PressedKey = 0x81;
+			PressedKey = 0x81; // char µ
 			break;
 		case '{':
-			PressedKey = 0x82;
+			PressedKey = 0x82; // char ¨
 			break;
 		case '}': 
-			PressedKey = '$';
+			PressedKey = 0x83; // char £
 			break;
 		case '_':
-			PressedKey = 0x83;
-		case 0x82:
-			PressedKey = 0x83;
-		case '^':
-			PressedKey = 0x82;
-			break;
+			PressedKey = 0x84; // char °
 		default:
 			break;
 	}
@@ -401,10 +388,10 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	}
 	
 	if (upper == 0 && !shiftKey){
-		PressedKey = lowerKey(PressedKey, KeyCode);
+		PressedKey = lowerKey(PressedKey);
 	}
 	else if (upper == 1 && shiftKey){
-		PressedKey = lowerKey(PressedKey, KeyCode);
+		PressedKey = lowerKey(PressedKey);
 	}
 	
 	printLeds(PressedKey);
