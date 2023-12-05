@@ -2,6 +2,7 @@
 
 task_t task[NB_TASK];
 uint8_t currentTask=0;
+uint8_t keyAscii = 'a';
 
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
@@ -44,18 +45,25 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
 }
 
 void initSPI(){
+    // MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
 
-    // MISO MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
-    DDRB |= (1<<MISO);
     DDRB |= (1<<MOSI);
     DDRB |= (1<<SCK);
+    DDRB |= (1<<SS);
+
     DDRC |= (1<<SS2);
     DDRC |= (1<<SS3);
     DDRD |= (1<<SS4);
     DDRD |= (1<<SS5);
     DDRD |= (1<<SS6);
 
-    // On sélectionne aucun chip
+    // MISO en entrée
+
+    DDRB &= ~(1<<MISO);
+
+    // Sélection d'aucun escalave
+    
+    PORTB |= (1<<SS);
     PORTC |= (1<<SS2);
     PORTC |= (1<<SS3);
     PORTD |= (1<<SS4);
@@ -63,30 +71,33 @@ void initSPI(){
     PORTD |= (1<<SS6);
 
     // Configurer le registre SPCR (SPI Control Register)
+    
     SPCR |= (1 << SPE) | (1 << MSTR);
 
-    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 0 SPI2X 0
+    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 1 SPI2X 0
+    
     SPCR |= (1 << SPR1); 
-    SPCR &= ~(1 << SPR0);
-    SPSR &= ~(1 << SPI2X);
+    SPCR |= (1 << SPR0);
 }
 
-uint8_t transferSPI(volatile uint8_t *ssPort, volatile uint8_t ss, uint8_t data) {
-    cli();
+void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
     // Abaisser la ligne SS pour sélectionner le périphérique
     *ssPort &= ~(1 << ss);
+}
 
+void unselectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
+    // Lever la ligne SS pour désélectionner le périphérique
+    *ssPort |= (1 << ss);
+}
+
+uint8_t transferSPI(uint8_t data) {
     // Charger les données dans le registre de données
     SPDR = data;
 
     // Attendre que la transmission soit terminée
-    while (!(SPSR & (1 << SPIF))) {}
-
-    // Lever la ligne SS pour désélectionner le périphérique
-    *ssPort |= (1 << ss);
+    while (!(SPSR & (1 << SPIF)));
 
     // Retourner les données reçues
-    sei();
     return SPDR;
 }
 
@@ -109,7 +120,7 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
-        while(1){
+    while(1){
         _delay_ms(100);
     }
 }
@@ -121,19 +132,32 @@ void writeSerial(){
 }
 
 void WriteMatrice(){ 
-        while(1){
+    while(1){
         _delay_ms(100);
     }
 }
 
 void Write7Segment(){
-
+    int counter = 0;
     initSPI();
-
     while(1){
-        // Reset de l'afficheur
-        transferSPI(&PORTC, SS2, 0x76);
-        _delay_ms(100);
+        //Calcul
+
+        counter++;
+        if (counter > 9999) counter = 0;
+        uint8_t digit1 = counter/1000;
+        uint8_t digit2 = (counter - digit1*1000) / 100;
+        uint8_t digit3 = (counter - digit1*1000 - digit2*100) / 10;
+        uint8_t digit4 = (counter - digit1*1000 - digit2*100 - digit3*10);
+
+        selectSlaveSPI(&PORTC, SS3);
+        transferSPI(0x76);
+        transferSPI(digit1);
+        transferSPI(digit2);
+        transferSPI(digit3);
+        transferSPI(digit4);
+        wait(DELAY_SLEEPING, 100);
+        unselectSlaveSPI(&PORTC, SS3);
     }
 }
 

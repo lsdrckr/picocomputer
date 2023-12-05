@@ -8,7 +8,8 @@
 #define CTC1    WGM12
 #define MISO    PB4
 #define MOSI    PB3
-#define SCK     PB6
+#define SCK     PB5
+#define SS      PB2
 #define SS2     PC0
 #define SS3     PC3
 #define SS4     PD1
