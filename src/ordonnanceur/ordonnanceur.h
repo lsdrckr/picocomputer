@@ -16,6 +16,7 @@
 #define SS5     PD4
 #define SS6     PD7
 #define RST1    PC1
+#define INT3    PD3
 #define NB_TASK 5
 #define SLEEP   0
 #define AWAKE   1

@@ -71,16 +71,7 @@ void SetupHardware(void)
 #endif
 
 	/* Hardware Initialization */
-	Serial_Init(9600, false);int main(void)
-{
-	SetupHardware();
-	GlobalInterruptEnable();
-
-	for (;;)
-	{
-		KeyboardHost_Task();
-		USB_USBTask();
-	}
+	Serial_Init(9600, false);
 	USB_Init();
 
 	/* Create a stdio stream for the serial port for stdin and stdout */

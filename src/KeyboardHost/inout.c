@@ -28,6 +28,7 @@ char popBuffer(){
     char key = buffer.data[buffer.first_index];
     buffer.first_index ++;
     if(buffer.first_index >= MAX_DATA) buffer.first_index = 0;
+    return key;
 }
 
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin){
@@ -63,5 +64,7 @@ void keyHandler(char key){
     addBuffer(key);
     // Envoie de l'interruption 
     setHighOutput(&PORTB, INT);
+    _delay_ms(100);
+    setLowOutput(&PORTB, INT);
     
 }

@@ -3,6 +3,7 @@
 task_t task[NB_TASK];
 uint8_t currentTask=0;
 uint8_t keyAscii = 'a';
+int counter;
 
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
@@ -120,8 +121,16 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
+    // while(1){
+    //     _delay_ms(100);
+    // }
+
+    // DEBUG keyboard
     while(1){
-        _delay_ms(100);
+        DDRB &= ~(1<<INT3);
+        if(PORTB & (1<<INT3)){
+            counter = 40;
+        }          
     }
 }
 
@@ -138,11 +147,10 @@ void WriteMatrice(){
 }
 
 void Write7Segment(){
-    int counter = 0;
+    counter = 0;
     initSPI();
     while(1){
         //Calcul
-
         counter++;
         if (counter > 9999) counter = 0;
         uint8_t digit1 = counter/1000;
