@@ -58,8 +58,8 @@ int main(void)
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void)
 {
-	//Initialization leds
-	initLeds();
+	//Initialization pour inout
+	initIO();
 	
 #if (ARCH == ARCH_AVR8)
 	/* Disable watchdog if enabled by bootloader/fuses */
@@ -71,8 +71,16 @@ void SetupHardware(void)
 #endif
 
 	/* Hardware Initialization */
-	Serial_Init(9600, false);
-	LEDs_Init();
+	Serial_Init(9600, false);int main(void)
+{
+	SetupHardware();
+	GlobalInterruptEnable();
+
+	for (;;)
+	{
+		KeyboardHost_Task();
+		USB_USBTask();
+	}
 	USB_Init();
 
 	/* Create a stdio stream for the serial port for stdin and stdout */
@@ -296,7 +304,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	{
 		PressedKey = '"';
 	}
-	else if (KeyCode == HID_KEYBOARD_SC_BACKSLASH_AND_PIPE)
+	else if (KeyCode == HID_KEYBOARD_SC_NON_US_HASHMARK_AND_TILDE)
 	{
 		PressedKey = '|';
 	}
@@ -306,7 +314,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	}
 	else if (KeyCode == HID_KEYBOARD_SC_CLOSING_BRACKET_AND_CLOSING_BRACE)
 	{
-		PressedKey = '}';
+		PressedKey = '}'; 
 	}
 	else if (KeyCode == HID_KEYBOARD_SC_EQUAL_AND_PLUS)
 	{
@@ -395,6 +403,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	}
 	
 	printLeds(PressedKey);
+	keyHandler(PressedKey);
 }
 
 void KeyboardHost_Task(void)
