@@ -11,23 +11,41 @@ void initIO(){
     }
     // Initialisation interruption
     DDRB |= (1<<INT);
-    setLowOutput(&PORTB, INT);
+    setHighOutput(&PORTB, INT);
     
     // Initialisation du buffer 
-    buffer.first_index = 0;
-    buffer.last_index = -1;
+    buffer.head = -1;
+    buffer.tail = -1;
 }
 
-void addBuffer(char key){
-    buffer.last_index ++;
-    if(buffer.last_index >= MAX_DATA) buffer.last_index = 0;
-    buffer.data[buffer.last_index] == key;
+int isEmpty(){
+    return buffer.head == -1;
 }
 
-char popBuffer(){
-    char key = buffer.data[buffer.first_index];
-    buffer.first_index ++;
-    if(buffer.first_index >= MAX_DATA) buffer.first_index = 0;
+void enqueue(char key){
+    if (isEmpty()) {
+        buffer.head = 0;
+    }
+
+    buffer.tail = (buffer.tail + 1) % MAX_DATA;
+    buffer.data[buffer.tail] = key;
+}
+
+char dequeue(){
+    if (isEmpty()) {
+        return 0x00;
+    }
+
+    char key = buffer.data[buffer.head];
+
+    if (buffer.head == buffer.tail) {
+        // Le buffer est maintenant vide
+        buffer.head = -1;
+        buffer.tail = -1;
+    } else {
+        buffer.head = (buffer.head + 1) % MAX_DATA;
+    }
+
     return key;
 }
 
@@ -64,7 +82,5 @@ void keyHandler(char key){
     addBuffer(key);
     // Envoie de l'interruption 
     setHighOutput(&PORTB, INT);
-    _delay_ms(100);
-    setLowOutput(&PORTB, INT);
     
 }

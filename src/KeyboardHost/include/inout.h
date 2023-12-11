@@ -13,8 +13,8 @@
 #define INT PB4
 
 typedef struct{
-    int last_index;
-    int first_index;
+    int head;
+    int tail;
     char data[MAX_DATA];
 }buffer_t;
 

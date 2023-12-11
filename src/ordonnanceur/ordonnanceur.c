@@ -126,10 +126,10 @@ void readSerial(){
     // }
 
     // DEBUG keyboard
+    DDRD &= ~(1<<PD3);
     while(1){
-        DDRB &= ~(1<<INT3);
-        if(PORTB & (1<<INT3)){
-            counter = 40;
+        if(PIND & (1<<INT3)){
+            PORTD ^= (1<<SS4);
         }          
     }
 }
