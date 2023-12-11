@@ -20,8 +20,11 @@
 #define NB_TASK 5
 #define SLEEP   0
 #define AWAKE   1
-
 #define DELAY_SLEEPING 0
+#define MAX_DEVICES 5
+#define KEYBOARD 0x01
+#define DISPLAY 0x02
+#define NETWORK 0x04
 
 typedef struct sleep_t{
     uint8_t reason;
@@ -34,6 +37,18 @@ typedef struct task_t{
     uint8_t state;
     sleep_t sleep;
 }task_t;
+
+typedef struct{
+    int head;
+    int tail;
+    char data[MAX_DATA];
+}buffer_t;
+
+typedef struct{
+    volatile uint8_t *port;
+    volatile uint8_t pin;
+    uint8_t device;
+}he10_t;
 
 #define SAVE_REGISTER() \
 asm volatile ( \
