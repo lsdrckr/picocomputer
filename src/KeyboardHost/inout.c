@@ -36,10 +36,10 @@ int isFull() {
     return (buffer.tail + 1) % MAX_DATA == buffer.head;
 }
 
-int size(){
+int sizeBuffer(){
     if(buffer.tail < buffer.head)
-        return MAX_DATA - (buffer.head - buffer.tail);
-    return buffer.tail - buffer.head;
+        return MAX_DATA - (buffer.head - buffer.tail) + 1;
+    return buffer.tail - buffer.head + 1;
 }
 
 void enqueue(char key){
@@ -109,7 +109,7 @@ void keyHandler(char key){
 }
 
 ISR(INT0_vect) {
-    printLeds(0xff);
+    printLeds(0xf1);
     _delay_ms(500);
     clearLeds();
 }

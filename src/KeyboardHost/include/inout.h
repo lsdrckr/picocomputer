@@ -20,6 +20,10 @@ typedef struct{
 }buffer_t;
 
 void initIO(void);
+int isEmpty();
+int isFull();
+int sizeBuffer();
+char dequeue();
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin);
 void setLowOutput(volatile uint8_t *port, volatile uint8_t pin);
 void reverseOutput(volatile uint8_t *port, volatile uint8_t pin);
