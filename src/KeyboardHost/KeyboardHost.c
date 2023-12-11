@@ -47,6 +47,8 @@ int main(void)
 {
 	SetupHardware();
 	GlobalInterruptEnable();
+	//Initialization pour inout
+	initIO();
 
 	for (;;)
 	{
@@ -58,8 +60,6 @@ int main(void)
 /** Configures the board hardware and chip peripherals for the demo's functionality. */
 void SetupHardware(void)
 {
-	//Initialization pour inout
-	initIO();
 	
 #if (ARCH == ARCH_AVR8)
 	/* Disable watchdog if enabled by bootloader/fuses */

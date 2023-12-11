@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 
 #define NB_LED 8
 #define MISO PB3

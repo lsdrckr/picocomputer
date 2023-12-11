@@ -9,13 +9,23 @@ void initIO(){
     for(int i=0; i<NB_LED; i++){
         DDRC |= (1<<leds[i]);
     }
-    // Initialisation interruption
-    DDRB |= (1<<INT);
-    setLowOutput(&PORTB, INT);
-    
+
     // Initialisation du buffer 
     buffer.head = -1;
     buffer.tail = -1;
+
+    // Initialisation interruption
+    
+    // Interruption slave->master
+    DDRB |= (1<<INT);
+    setLowOutput(&PORTB, INT);
+    // Interruption SPI
+    DDRB &= ~(1<<SS);
+    // Activer les interruptions sur le changement de niveau bas sur PB0
+    EIMSK |= (1 << INT0);
+    EICRA |= (1 << ISC01);
+
+    sei();
 }
 
 int isEmpty(){
@@ -95,8 +105,11 @@ void keyHandler(char key){
     // Sauvegarde de la clef
     enqueue(key);
     // Envoie de l'interruption
-    if(size() == 4) 
-        setHighOutput(&PORTB, INT);
-    else
-        setLowOutput(&PORTB, INT);
+    setHighOutput(&PORTB, INT); 
+}
+
+ISR(INT0_vect) {
+    printLeds(0xff);
+    _delay_ms(500);
+    clearLeds();
 }

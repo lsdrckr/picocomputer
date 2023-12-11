@@ -126,11 +126,18 @@ void readSerial(){
     // }
 
     // DEBUG keyboard
-    DDRD &= ~(1<<PD3);
+    initSPI();
+    DDRD &= ~(1<<INT3);
+    
     while(1){
-        if(PIND & (1<<INT3)){
-            PORTD ^= (1<<SS4);
-        }          
+        selectSlaveSPI(&PORTD, SS4);
+        transferSPI(0x00);
+        wait(DELAY_SLEEPING, 500);
+        unselectSlaveSPI(&PORTD, SS4);
+        wait(DELAY_SLEEPING, 500);
+        // if(PIND & (1<<INT3)){
+        //     PORTD ^= (1<<SS4);
+        // }          
     }
 }
 
@@ -147,26 +154,30 @@ void WriteMatrice(){
 }
 
 void Write7Segment(){
-    counter = 0;
-    initSPI();
     while(1){
-        //Calcul
-        counter++;
-        if (counter > 9999) counter = 0;
-        uint8_t digit1 = counter/1000;
-        uint8_t digit2 = (counter - digit1*1000) / 100;
-        uint8_t digit3 = (counter - digit1*1000 - digit2*100) / 10;
-        uint8_t digit4 = (counter - digit1*1000 - digit2*100 - digit3*10);
-
-        selectSlaveSPI(&PORTC, SS3);
-        transferSPI(0x76);
-        transferSPI(digit1);
-        transferSPI(digit2);
-        transferSPI(digit3);
-        transferSPI(digit4);
-        wait(DELAY_SLEEPING, 100);
-        unselectSlaveSPI(&PORTC, SS3);
+        _delay_ms(100);
     }
+
+    // counter = 0;
+    // initSPI();
+    // while(1){
+    //     //Calcul
+    //     counter++;
+    //     if (counter > 9999) counter = 0;
+    //     uint8_t digit1 = counter/1000;
+    //     uint8_t digit2 = (counter - digit1*1000) / 100;
+    //     uint8_t digit3 = (counter - digit1*1000 - digit2*100) / 10;
+    //     uint8_t digit4 = (counter - digit1*1000 - digit2*100 - digit3*10);
+
+    //     selectSlaveSPI(&PORTC, SS3);
+    //     transferSPI(0x76);
+    //     transferSPI(digit1);
+    //     transferSPI(digit2);
+    //     transferSPI(digit3);
+    //     transferSPI(digit4);
+    //     wait(DELAY_SLEEPING, 100);
+    //     unselectSlaveSPI(&PORTC, SS3);
+    // }
 }
 
 
