@@ -11,7 +11,7 @@ void initIO(){
     }
     // Initialisation interruption
     DDRB |= (1<<INT);
-    setHighOutput(&PORTB, INT);
+    setLowOutput(&PORTB, INT);
     
     // Initialisation du buffer 
     buffer.head = -1;
@@ -82,5 +82,4 @@ void keyHandler(char key){
     addBuffer(key);
     // Envoie de l'interruption 
     setHighOutput(&PORTB, INT);
-    
 }
