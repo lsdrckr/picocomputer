@@ -22,7 +22,21 @@ int isEmpty(){
     return buffer.head == -1;
 }
 
+int isFull(FIFO *fifo) {
+    return (buffer.tail + 1) % MAX_DATA == fifo.head;
+}
+
+int size(){
+    if(buffer.tail < buffer.head)
+        return MAX_DATA - (buffer.head - buffer.tail);
+    return buffer.tail - buffer.head;
+}
+
 void enqueue(char key){
+    if (isFull(fifo)) {
+        return;
+    }
+
     if (isEmpty()) {
         buffer.head = 0;
     }
@@ -80,6 +94,9 @@ void clearLeds(){
 void keyHandler(char key){
     // Sauvegarde de la clef
     addBuffer(key);
-    // Envoie de l'interruption 
-    setHighOutput(&PORTB, INT);
+    // Envoie de l'interruption
+    if(size() == 4) 
+        setHighOutput(&PORTB, INT);
+    else
+        setLowOutput(&PORTB, INT);
 }

@@ -394,7 +394,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	}
 	
 	printLeds(PressedKey);
-	//keyHandler(PressedKey);
+	keyHandler(PressedKey);
 }
 
 void KeyboardHost_Task(void)
