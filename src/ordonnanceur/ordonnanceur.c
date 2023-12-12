@@ -110,11 +110,28 @@ void initConnectorsList(){
     for(int i = 0; i<MAX_DEVICES; i++){
         selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
         transferSPI(0x00);
-        wait(DELAY_SLEEPING, 20);
-        data = transferSPI(0x01);
+        serialWrite(data+'0');
+        wait(DELAY_SLEEPING,20);
+        data = transferSPI(0x00);
+        serialWrite(data+'0');
         connectorsList[i].device = data;
         unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+        serialWrite('\r');
+        serialWrite('\n');
     }
+    serialWrite('\n');
+}
+
+void initSerial(void)
+{
+    // Serial Initialization
+    /*Set baud rate 9600 */
+    UBRR0H = (unsigned char)((MYUBRR) >> 8);
+    UBRR0L = (unsigned char)MYUBRR;
+    /* Enable receiver and transmitter */
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0);
+    /* Frame format: 8data, No parity, 1stop bit */
+    UCSR0C = (3 << UCSZ00);
 }
 
 void initSPI(){
@@ -147,19 +164,34 @@ void initSPI(){
     
     SPCR |= (1 << SPE) | (1 << MSTR);
 
-    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 1 SPI2X 0
+    // Configurer la vitesse de transmission Diviseur 128 SPR1 1 SPR0 1 SPI2X 0
     
     SPCR |= (1 << SPR1); 
-    SPCR |= (1 << SPR0);
-    
+    SPCR &= ~(1 << SPR0);
+
     initConnectorsList();
 }
 
+unsigned char serialCheckTxReady(void)
+{
+    return (UCSR0A & _BV(UDRE0)); // nonzero if transmit register is ready to receive new data.
+}
+
+void serialWrite(uint8_t DataOut)
+{
+    while (serialCheckTxReady() == 0) // while NOT ready to transmit
+    {
+        ;
+        ;
+    }
+    UDR0 = DataOut;
+}
+
 uint8_t transferDataTo(uint8_t device, uint8_t data){
+    uint8_t answer;
     int i = indexOf(device);
     selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
-    uint8_t answer = transferSPI(data);
-    wait(DELAY_SLEEPING, 100);
+    answer = transferSPI(data);
     unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
     return answer;
 }
@@ -197,17 +229,15 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
-    //Test Keyboard
+    initSerial();
     initSPI();
-    
-    DDRC |= (1<<PC3);
+    DDRD &= ~(1<<INT3);
 
     while(1){
-        transferDataTo(KEYBOARD, 0x01);
+            uint8_t key = grabKey();
+            serialWrite(key);
+            wait(DELAY_SLEEPING, 20);
     }
-
-    uint8_t key = grabKey();
-    if (key = 'c') PORTC ^= PC3;
     
     // while(1){
     //     _delay_ms(100);

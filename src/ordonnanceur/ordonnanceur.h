@@ -5,6 +5,9 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+#define BaudRate 9600
+#define MYUBRR (F_CPU / 16 / BaudRate) - 1
+
 #define CTC1    WGM12
 #define MISO    PB4
 #define MOSI    PB3

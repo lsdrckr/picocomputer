@@ -122,7 +122,6 @@ void keyHandler(char key){
     enqueue(key);
     // Envoie de l'interruption
     setHighOutput(&PORTB, INT); 
-    printLeds(sizeBuffer());
 }
 
 ISR(SPI_STC_vect) {
@@ -135,7 +134,8 @@ ISR(SPI_STC_vect) {
             SPDR = sizeBuffer();
             break;
         default:
-            SPDR = dequeue();
+            SPDR = 'y';
             break;
     }
+    setLowOutput(&PORTB, INT);
 }
