@@ -4,6 +4,7 @@ task_t task[NB_TASK];
 uint8_t currentTask=0;
 uint8_t keyAscii = 'a';
 int counter;
+he10_t connectorsList[MAX_DEVICES];
 
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
@@ -45,6 +46,33 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     asm volatile("reti");
 }
 
+void initConnectorsList(){
+    &(connectorsList[0].port) = PORTC;
+    connectorsList[0].pin = SS2;
+    
+    &(connectorsList[1].port) = PORTC;
+    connectorsList[1].pin = SS3;
+    
+    &(connectorsList[2].port) = PORTD;
+    connectorsList[2].pin = SS4;
+    
+    &(connectorsList[3].port) = PORTD;
+    connectorsList[3].pin = SS5;
+    
+    &(connectorsList[4].port) = PORTD;
+    connectorsList[4].pin = SS6;
+    
+    
+    
+    for(int i = 0; i<MAX_DEVICES=){
+        selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+        uint8_t data = transferSPI(0x01);
+        data = transferSPI(0x01);
+        connectorsList[i].device = data;
+        unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin)
+    }
+}
+
 void initSPI(){
     // MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
 
@@ -79,6 +107,8 @@ void initSPI(){
     
     SPCR |= (1 << SPR1); 
     SPCR |= (1 << SPR0);
+    
+    initConnectorsList();
 }
 
 void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
@@ -112,6 +142,25 @@ void wait(uint8_t reason, uint16_t data){
     TCNT1 = 0;
     sei();
     TIMER1_COMPA_vect();
+}
+
+int indexOf(uint8_t device){
+    for(int i = 0; i<MAX_DEVICES; i++){
+        if (connectorsList[i].device == device){
+            return i;
+        }
+    }
+    return -1;
+}
+
+void primitive(uint8_t selectSPI, buffer_t buffer, int size){
+    
+    uint8_t line;
+    
+    line = 0x80 & selectSPI 0x4 	Réseau ;
+    
+    SPDR
+            
 }
 
 void task0(){ // processus défault ne dort jamais
