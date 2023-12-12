@@ -46,71 +46,6 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
     asm volatile("reti");
 }
 
-void initConnectorsList(){
-    // &(connectorsList[0].port) = PORTC;
-    // connectorsList[0].pin = SS2;
-    
-    // &(connectorsList[1].port) = PORTC;
-    // connectorsList[1].pin = SS3;
-    
-    // &(connectorsList[2].port) = PORTD;
-    // connectorsList[2].pin = SS4;
-    
-    // &(connectorsList[3].port) = PORTD;
-    // connectorsList[3].pin = SS5;
-    
-    // &(connectorsList[4].port) = PORTD;
-    // connectorsList[4].pin = SS6;
-    
-    
-    
-    // for(int i = 0; i<MAX_DEVICES=){
-    //     selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
-    //     uint8_t data = transferSPI(0x01);
-    //     data = transferSPI(0x01);
-    //     connectorsList[i].device = data;
-    //     unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin)
-    // }
-}
-
-void initSPI(){
-    // MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
-
-    DDRB |= (1<<MOSI);
-    DDRB |= (1<<SCK);
-    DDRB |= (1<<SS);
-
-    DDRC |= (1<<SS2);
-    DDRC |= (1<<SS3);
-    DDRD |= (1<<SS4);
-    DDRD |= (1<<SS5);
-    DDRD |= (1<<SS6);
-
-    // MISO en entrée
-
-    DDRB &= ~(1<<MISO);
-
-    // Sélection d'aucun escalave
-    
-    PORTB |= (1<<SS);
-    PORTC |= (1<<SS2);
-    PORTC |= (1<<SS3);
-    PORTD |= (1<<SS4);
-    PORTD |= (1<<SS5);
-    PORTD |= (1<<SS6);
-
-    // Configurer le registre SPCR (SPI Control Register)
-    
-    SPCR |= (1 << SPE) | (1 << MSTR);
-
-    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 1 SPI2X 0
-    
-    SPCR |= (1 << SPR1); 
-    SPCR |= (1 << SPR0);
-    
-    initConnectorsList();
-}
-
 void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
     // Abaisser la ligne SS pour sélectionner le périphérique
     *ssPort &= ~(1 << ss);
@@ -153,15 +88,107 @@ int indexOf(uint8_t device){
     return -1;
 }
 
-/*void primitive(uint8_t selectSPI, buffer_t buffer, int size){
+void initConnectorsList(){
+    uint8_t data;
+    connectorsList[0].port = &PORTC;
+    connectorsList[0].pin = SS2;
     
-    // uint8_t line;
+    connectorsList[1].port = &PORTC;
+    connectorsList[1].pin = SS3;
     
-    // line = 0x80 & selectSPI 0x4;
+    connectorsList[2].port = &PORTD;
+    connectorsList[2].pin = SS4;
     
-    // SPDR
-            
-}*/
+    connectorsList[3].port = &PORTD;
+    connectorsList[3].pin = SS5;
+    
+    connectorsList[4].port = &PORTD;
+    connectorsList[4].pin = SS6;
+    
+    
+    
+    for(int i = 0; i<MAX_DEVICES; i++){
+        selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+        transferSPI(0x00);
+        wait(DELAY_SLEEPING, 20);
+        data = transferSPI(0x01);
+        connectorsList[i].device = data;
+        unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    }
+}
+
+void initSPI(){
+    // MOSI SCK SS2 SS3 SS4 SS5 SS6 en sortie
+
+    DDRB |= (1<<MOSI);
+    DDRB |= (1<<SCK);
+    DDRB |= (1<<SS);
+
+    DDRC |= (1<<SS2);
+    DDRC |= (1<<SS3);
+    DDRD |= (1<<SS4);
+    DDRD |= (1<<SS5);
+    DDRD |= (1<<SS6);
+
+    // MISO en entrée
+
+    DDRB &= ~(1<<MISO);
+
+    // Sélection d'aucun escalave
+    
+    PORTB |= (1<<SS);
+    PORTC |= (1<<SS2);
+    PORTC |= (1<<SS3);
+    PORTD |= (1<<SS4);
+    PORTD |= (1<<SS5);
+    PORTD |= (1<<SS6);
+
+    // Configurer le registre SPCR (SPI Control Register)
+    
+    SPCR |= (1 << SPE) | (1 << MSTR);
+
+    // Configurer la vitesse de transmission Diviseur 64 SPR1 1 SPR0 1 SPI2X 0
+    
+    SPCR |= (1 << SPR1); 
+    SPCR |= (1 << SPR0);
+    
+    initConnectorsList();
+}
+
+uint8_t transferDataTo(uint8_t device, uint8_t data){
+    int i = indexOf(device);
+    selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    uint8_t answer = transferSPI(data);
+    wait(DELAY_SLEEPING, 100);
+    unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    return answer;
+}
+
+uint8_t grabKey(){
+    uint8_t key;
+    transferDataTo(KEYBOARD,0x55);
+    wait(DELAY_SLEEPING, 20);
+    key = transferDataTo(KEYBOARD,0x55);
+    return key;
+}
+
+uint8_t bufferSize(){
+    uint8_t buffer_size;
+    transferDataTo(KEYBOARD, 0x01);
+    wait(DELAY_SLEEPING, 20);
+    buffer_size = transferDataTo(KEYBOARD, 0x01);
+    return buffer_size;
+}
+
+void grabKeys(uint8_t keyList[bufferSize()]){
+    uint8_t buffer_size = bufferSize();
+    
+    for (int i = 0; i<buffer_size; i++){
+        wait(DELAY_SLEEPING, 20);
+        uint8_t buffer = transferDataTo(KEYBOARD, 0x00);
+        keyList[i] = buffer;
+    }
+}
 
 void task0(){ // processus défault ne dort jamais
     while(1){
@@ -170,27 +197,53 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
+    //Test Keyboard
+    initSPI();
+    
+    DDRC |= (1<<PC3);
+
+    while(1){
+        transferDataTo(KEYBOARD, 0x01);
+    }
+
+    uint8_t key = grabKey();
+    if (key = 'c') PORTC ^= PC3;
+    
     // while(1){
     //     _delay_ms(100);
     // }
 
     // DEBUG keyboard
-    initSPI();
-    DDRD &= ~(1<<INT3);
+    // initSPI();
+    // DDRD &= ~(1<<INT3);
     
-    while(1){
-        selectSlaveSPI(&PORTD, SS4);
-        uint8_t response = transferSPI(0x00);
-        if(response == 0x01){
-            PORTD ^= (1<<SS5);
-        }
-        wait(DELAY_SLEEPING, 1000);
-        unselectSlaveSPI(&PORTD, SS4);
-        wait(DELAY_SLEEPING, 1000);
+    // while(1){
+    //     selectSlaveSPI(&PORTD, SS4);
+    //     uint8_t response = transferSPI(0x00);
+    //     if(response == 0x01){
+    //         PORTD ^= (1<<SS5);
+    //     }
+    //     wait(DELAY_SLEEPING, 1000);
+    //     unselectSlaveSPI(&PORTD, SS4);
+    //     wait(DELAY_SLEEPING, 1000);
+
+//     initSPI();
+//     DDRD &= ~(1<<INT3);
+//     
+//     while(1){
+//         selectSlaveSPI(&PORTD, SS4);
+//         uint8_t response = transferSPI(0x01);
+//         if(response == 0x01){
+//             PORTD ^= (1<<SS5);
+//         }
+//         wait(DELAY_SLEEPING, 1000);
+//         unselectSlaveSPI(&PORTD, SS4);
+//         wait(DELAY_SLEEPING, 1000);
+
         // if(PIND & (1<<INT3)){
         //     PORTD ^= (1<<SS4);
         // }          
-    }
+    // }
 }
 
 void writeSerial(){
