@@ -3,8 +3,28 @@
 volatile uint8_t leds[NB_LED] = {PC7, PC6, PC5, PC4, PC3, PC2, PC1, PC0};
 buffer_t buffer;
 
+void initSPISlave() {
+    // Configurer le port MISO comme sortie 
+    DDRB |= (1<<MISO);
+    // Configurer le port MOSI SCK SS comme entrée
+    DDRB &= ~(1 <<MOSI);
+    DDRB &= ~(1<<SCK);
+    DDRB &= ~(1<<SS);
+
+    // Actvier le mode SPI
+    SPCR |= (1<<SPE);
+
+    // Actver mode esclave SPI
+    SPCR &= ~(1 << MSTR);
+
+    // Activer l'interruption SPI
+    SPCR |= (1 << SPIE);
+
+    // Activer les interruptions globales
+    sei();
+}
+
 void initIO(){
-    
     // Initialisation des leds
     for(int i=0; i<NB_LED; i++){
         DDRC |= (1<<leds[i]);
@@ -13,18 +33,13 @@ void initIO(){
     // Initialisation du buffer 
     buffer.head = -1;
     buffer.tail = -1;
-
-    // Initialisation interruption
     
     // Interruption slave->master
     DDRB |= (1<<INT);
     setLowOutput(&PORTB, INT);
-    // Interruption SPI
-    DDRB &= ~(1<<SS);
-    // Activer les interruptions sur le changement de niveau bas sur PB0
-    EIMSK |= (1 << INT0);
-    EICRA |= (1 << ISC01);
 
+    // Init spi
+    initSPISlave();
     sei();
 }
 
@@ -108,8 +123,32 @@ void keyHandler(char key){
     setHighOutput(&PORTB, INT); 
 }
 
-ISR(INT0_vect) {
-    printLeds(0xf1);
-    _delay_ms(500);
+void sendType(){
+    SPDR = '0';
+}
+
+void sendKeys(){
+    SPDR = '1';
+}
+
+void sendKey(){
+
+}
+
+ISR(SPI_STC_vect) {
+    uint8_t receivedData = SPDR;
+    printLeds(SPDR);
+    switch (receivedData){
+        case 0x00: 
+            sendType();
+            break;
+        case 0x01:
+            sendKeys();
+            break;
+        default:
+            sendKey();
+            break;
+    }
+    _delay_ms(100);
     clearLeds();
 }

@@ -131,10 +131,13 @@ void readSerial(){
     
     while(1){
         selectSlaveSPI(&PORTD, SS4);
-        transferSPI(0x00);
-        wait(DELAY_SLEEPING, 500);
+        uint8_t response = transferSPI(0x00);
+        if(response == 0x01){
+            PORTD ^= (1<<SS5);
+        }
+        wait(DELAY_SLEEPING, 1000);
         unselectSlaveSPI(&PORTD, SS4);
-        wait(DELAY_SLEEPING, 500);
+        wait(DELAY_SLEEPING, 1000);
         // if(PIND & (1<<INT3)){
         //     PORTD ^= (1<<SS4);
         // }          

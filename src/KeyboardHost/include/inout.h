@@ -19,15 +19,20 @@ typedef struct{
     char data[MAX_DATA];
 }buffer_t;
 
+void initSPISlave(void);
 void initIO(void);
-int isEmpty();
-int isFull();
-int sizeBuffer();
-char dequeue();
+int isEmpty(void);
+int isFull(void);
+int sizeBuffer(void);
+char dequeue(void);
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin);
 void setLowOutput(volatile uint8_t *port, volatile uint8_t pin);
 void reverseOutput(volatile uint8_t *port, volatile uint8_t pin);
 void printLeds(char c);
 void clearLeds(void);
 void keyHandler(char key);
+void sendData(uint8_t data);
+void sendType(void);
+void sendKeys(void);
+void sendKey(void);
 #endif

@@ -46,7 +46,6 @@ int shiftKey = 0;
 int main(void)
 {
 	SetupHardware();
-	GlobalInterruptEnable();
 	//Initialization pour inout
 	initIO();
 
@@ -54,10 +53,6 @@ int main(void)
 	{
 		KeyboardHost_Task();
 		USB_USBTask();
-		sei();
-		while(1){
-			_delay_ms(100);
-		}
 	}
 }
 
