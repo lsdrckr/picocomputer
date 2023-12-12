@@ -47,30 +47,30 @@ ISR(TIMER1_COMPA_vect,ISR_NAKED){
 }
 
 void initConnectorsList(){
-    &(connectorsList[0].port) = PORTC;
-    connectorsList[0].pin = SS2;
+    // &(connectorsList[0].port) = PORTC;
+    // connectorsList[0].pin = SS2;
     
-    &(connectorsList[1].port) = PORTC;
-    connectorsList[1].pin = SS3;
+    // &(connectorsList[1].port) = PORTC;
+    // connectorsList[1].pin = SS3;
     
-    &(connectorsList[2].port) = PORTD;
-    connectorsList[2].pin = SS4;
+    // &(connectorsList[2].port) = PORTD;
+    // connectorsList[2].pin = SS4;
     
-    &(connectorsList[3].port) = PORTD;
-    connectorsList[3].pin = SS5;
+    // &(connectorsList[3].port) = PORTD;
+    // connectorsList[3].pin = SS5;
     
-    &(connectorsList[4].port) = PORTD;
-    connectorsList[4].pin = SS6;
+    // &(connectorsList[4].port) = PORTD;
+    // connectorsList[4].pin = SS6;
     
     
     
-    for(int i = 0; i<MAX_DEVICES=){
-        selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
-        uint8_t data = transferSPI(0x01);
-        data = transferSPI(0x01);
-        connectorsList[i].device = data;
-        unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin)
-    }
+    // for(int i = 0; i<MAX_DEVICES=){
+    //     selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    //     uint8_t data = transferSPI(0x01);
+    //     data = transferSPI(0x01);
+    //     connectorsList[i].device = data;
+    //     unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin)
+    // }
 }
 
 void initSPI(){
@@ -153,15 +153,15 @@ int indexOf(uint8_t device){
     return -1;
 }
 
-void primitive(uint8_t selectSPI, buffer_t buffer, int size){
+/*void primitive(uint8_t selectSPI, buffer_t buffer, int size){
     
-    uint8_t line;
+    // uint8_t line;
     
-    line = 0x80 & selectSPI 0x4 	Réseau ;
+    // line = 0x80 & selectSPI 0x4;
     
-    SPDR
+    // SPDR
             
-}
+}*/
 
 void task0(){ // processus défault ne dort jamais
     while(1){
@@ -180,7 +180,7 @@ void readSerial(){
     
     while(1){
         selectSlaveSPI(&PORTD, SS4);
-        uint8_t response = transferSPI(0x00);
+        uint8_t response = transferSPI(0x01);
         if(response == 0x01){
             PORTD ^= (1<<SS5);
         }

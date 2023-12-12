@@ -39,12 +39,6 @@ typedef struct task_t{
 }task_t;
 
 typedef struct{
-    int head;
-    int tail;
-    char data[MAX_DATA];
-}buffer_t;
-
-typedef struct{
     volatile uint8_t *port;
     volatile uint8_t pin;
     uint8_t device;
