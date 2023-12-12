@@ -10,7 +10,7 @@
 #define MOSI PB2
 #define SCK PB1
 #define SS PB0
-#define MAX_DATA 512
+#define MAX_DATA 255
 #define INT PB4
 
 typedef struct{
@@ -21,9 +21,9 @@ typedef struct{
 
 void initSPISlave(void);
 void initIO(void);
-int isEmpty(void);
-int isFull(void);
-int sizeBuffer(void);
+uint8_t isEmpty(void);
+uint8_t isFull(void);
+uint8_t sizeBuffer(void);
 char dequeue(void);
 void setHighOutput(volatile uint8_t *port, volatile uint8_t pin);
 void setLowOutput(volatile uint8_t *port, volatile uint8_t pin);

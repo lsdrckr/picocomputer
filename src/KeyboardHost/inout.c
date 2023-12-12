@@ -43,15 +43,16 @@ void initIO(){
     sei();
 }
 
-int isEmpty(){
+uint8_t isEmpty(){
     return buffer.head == -1;
 }
 
-int isFull() {
+uint8_t isFull() {
     return (buffer.tail + 1) % MAX_DATA == buffer.head;
 }
 
-int sizeBuffer(){
+uint8_t sizeBuffer(){
+    if(isEmpty()) return 0;
     if(buffer.tail < buffer.head)
         return MAX_DATA - (buffer.head - buffer.tail) + 1;
     return buffer.tail - buffer.head + 1;
@@ -121,34 +122,20 @@ void keyHandler(char key){
     enqueue(key);
     // Envoie de l'interruption
     setHighOutput(&PORTB, INT); 
-}
-
-void sendType(){
-    SPDR = '0';
-}
-
-void sendKeys(){
-    SPDR = '1';
-}
-
-void sendKey(){
-
+    printLeds(sizeBuffer());
 }
 
 ISR(SPI_STC_vect) {
     uint8_t receivedData = SPDR;
-    printLeds(SPDR);
     switch (receivedData){
         case 0x00: 
-            sendType();
+            SPDR = 0x01;
             break;
         case 0x01:
-            sendKeys();
+            SPDR = sizeBuffer();
             break;
         default:
-            sendKey();
+            SPDR = dequeue();
             break;
     }
-    _delay_ms(100);
-    clearLeds();
 }

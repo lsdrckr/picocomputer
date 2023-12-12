@@ -180,7 +180,7 @@ void readSerial(){
     
     while(1){
         selectSlaveSPI(&PORTD, SS4);
-        uint8_t response = transferSPI(0x01);
+        uint8_t response = transferSPI(0x00);
         if(response == 0x01){
             PORTD ^= (1<<SS5);
         }
