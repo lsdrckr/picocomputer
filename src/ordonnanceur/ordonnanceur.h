@@ -19,11 +19,11 @@
 #define SS5     PD4
 #define SS6     PD7
 #define RST1    PC1
-#define INT1    PC2
-#define INT2    PC5
-#define INT3    PD3
-#define INT4    PD6
-#define INT5    PB1
+#define INT2    PC2
+#define INT3    PC5
+#define INT4    PD3
+#define INT5    PD6
+#define INT6    PB1
 #define NB_TASK 5
 #define SLEEP   0
 #define AWAKE   1
