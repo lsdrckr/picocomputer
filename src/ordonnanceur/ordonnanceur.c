@@ -93,27 +93,27 @@ void initConnectorsList(){
     connectorsList[0].port = &PORTC;
     connectorsList[0].cs = SS2;
     connectorsList[0].pin = &PINC;
-    connectorsList[0].interrupt = INT1;
+    connectorsList[0].interrupt = INT2;
     
     connectorsList[1].port = &PORTC;
     connectorsList[1].cs = SS3;
-    connectorsList[0].pin = &PINC;
-    connectorsList[0].interrupt = INT1;
+    connectorsList[1].pin = &PINC;
+    connectorsList[1].interrupt = INT3;
     
     connectorsList[2].port = &PORTD;
     connectorsList[2].cs = SS4;
-    connectorsList[0].pin = &PIND;
-    connectorsList[0].interrupt = INT1;
+    connectorsList[2].pin = &PIND;
+    connectorsList[2].interrupt = INT4;
     
     connectorsList[3].port = &PORTD;
     connectorsList[3].cs = SS5;
-    connectorsList[0].pin = &PIND;
-    connectorsList[0].interrupt = INT1;
+    connectorsList[3].pin = &PIND;
+    connectorsList[3].interrupt = INT5;
     
     connectorsList[4].port = &PORTD;
     connectorsList[4].cs = SS6;
-    connectorsList[0].pin = &PINB;
-    connectorsList[0].interrupt = INT1;
+    connectorsList[4].pin = &PINB;
+    connectorsList[4].interrupt = INT6;
     
     
     
@@ -239,10 +239,8 @@ void grabKeys(uint8_t keyList[bufferSize()]){
 int checkInterrupt(uint8_t device){
     int i = indexOf(device);
     
-    if (connectorsList[i].pin & (1<<connectorsList[i].interrupt)) return 0;
-    else if (connectorsList[i].pin & ~(1<<connectorsList[i].interrupt)) return 1;
-    
-    return -1;
+    if (*(connectorsList[i].pin) & (1<<connectorsList[i].interrupt)) return 1;
+    return 0;
 }
 
 void task0(){ // processus défault ne dort jamais
@@ -257,9 +255,10 @@ void readSerial(){
     DDRD &= ~(1<<INT3);
 
     while(1){
-            if(checkInterrupt(KEYBOARD)){
-                serialWrite('d');
-            }
+        if(checkInterrupt(KEYBOARD)){
+            serialWrite(grabKey());
+            grabKey();
+        }
     }
 }
 

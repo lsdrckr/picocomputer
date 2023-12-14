@@ -148,6 +148,9 @@ ISR(SPI_STC_vect) {
             break;
         default:
             SPDR = dequeue();
+            if(!sizeBuffer()){
+                setLowOutput(&PORTB, INT);
+            }
             break;
     }
 }
