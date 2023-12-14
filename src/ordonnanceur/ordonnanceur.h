@@ -19,7 +19,11 @@
 #define SS5     PD4
 #define SS6     PD7
 #define RST1    PC1
+#define INT1    PC2
+#define INT2    PC5
 #define INT3    PD3
+#define INT4    PD6
+#define INT5    PB1
 #define NB_TASK 5
 #define SLEEP   0
 #define AWAKE   1
@@ -43,7 +47,9 @@ typedef struct task_t{
 
 typedef struct{
     volatile uint8_t *port;
-    volatile uint8_t pin;
+    volatile uint8_t cs;
+    volatile uint8_t *pin;
+    volatile uint8_t interrupt;
     uint8_t device;
 }he10_t;
 

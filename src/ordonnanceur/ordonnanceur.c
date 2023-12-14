@@ -92,18 +92,28 @@ void initConnectorsList(){
     uint8_t data;
     connectorsList[0].port = &PORTC;
     connectorsList[0].pin = SS2;
+    connectorsList[0].pin = &PORTC;
+    connectorsList[0].interrupt = INT1;
     
     connectorsList[1].port = &PORTC;
     connectorsList[1].pin = SS3;
+    connectorsList[0].pin = &PORTC;
+    connectorsList[0].interrupt = INT1;
     
     connectorsList[2].port = &PORTD;
     connectorsList[2].pin = SS4;
+    connectorsList[0].pin = &PORTD;
+    connectorsList[0].interrupt = INT1;
     
     connectorsList[3].port = &PORTD;
     connectorsList[3].pin = SS5;
+    connectorsList[0].pin = &PORTD;
+    connectorsList[0].interrupt = INT1;
     
     connectorsList[4].port = &PORTD;
     connectorsList[4].pin = SS6;
+    connectorsList[0].pin = &PORTB;
+    connectorsList[0].interrupt = INT1;
     
     
     
@@ -169,6 +179,10 @@ void initSPI(){
     SPCR |= (1 << SPR1); 
     SPCR &= ~(1 << SPR0);
 
+    // Clock phase 
+    SPCR &= ~(1 << CPOL);
+    SPCR &= ~(1 << CPHA);
+
     initConnectorsList();
 }
 
@@ -220,6 +234,12 @@ void grabKeys(uint8_t keyList[bufferSize()]){
         uint8_t buffer = transferDataTo(KEYBOARD, 0x00);
         keyList[i] = buffer;
     }
+}
+
+int checkInterrupt(uint8_t device){
+    int i = indexOf(device);
+    
+    return 0;
 }
 
 void task0(){ // processus défault ne dort jamais

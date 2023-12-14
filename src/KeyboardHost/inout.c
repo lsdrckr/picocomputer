@@ -38,6 +38,9 @@ void initIO(){
     DDRB |= (1<<INT);
     setLowOutput(&PORTB, INT);
 
+    // Init flag d'envoi de la taille
+    sizeSendFlag = 0;
+
     // Init spi
     initSPISlave();
     sei();
@@ -131,11 +134,19 @@ ISR(SPI_STC_vect) {
             SPDR = 0x01;
             break;
         case 0x01:
-            SPDR = sizeBuffer();
+            if(!sizeSendFlag){
+                SPDR = sizeBuffer();
+                sizeSendFlag = 1;
+                break;
+            }
+            SPDR = dequeue();
+            if(!sizeBuffer()){
+                setLowOutput(&PORTB, INT);
+                sizeSendFlag = 0;
+            }
             break;
         default:
-            SPDR = 'y';
+            SPDR = dequeue();
             break;
     }
-    setLowOutput(&PORTB, INT);
 }
