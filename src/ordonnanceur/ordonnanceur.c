@@ -58,6 +58,7 @@ void wait(uint8_t reason, uint16_t data){
     TIMER1_COMPA_vect();
 }
 
+
 void initSerial(void)
 {
     // Serial Initialization
@@ -85,6 +86,7 @@ void serialWrite(uint8_t DataOut)
     UDR0 = DataOut;
 }
 
+
 void task0(){ // processus défault ne dort jamais
     while(1){
         _delay_ms(100);
@@ -96,9 +98,10 @@ void readSerial(){
     DDRD &= ~(1<<INT3);
 
     while(1){
-            if(checkInterrupt(KEYBOARD)){
-                serialWrite('d');
-            }
+        if(checkInterrupt(KEYBOARD)){
+            serialWrite(grabKey());
+            grabKey();
+        }
     }
 }
 
