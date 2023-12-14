@@ -9,29 +9,10 @@
 #define MYUBRR (F_CPU / 16 / BaudRate) - 1
 
 #define CTC1    WGM12
-#define MISO    PB4
-#define MOSI    PB3
-#define SCK     PB5
-#define SS      PB2
-#define SS2     PC0
-#define SS3     PC3
-#define SS4     PD1
-#define SS5     PD4
-#define SS6     PD7
-#define RST1    PC1
-#define INT2    PC2
-#define INT3    PC5
-#define INT4    PD3
-#define INT5    PD6
-#define INT6    PB1
 #define NB_TASK 5
 #define SLEEP   0
 #define AWAKE   1
 #define DELAY_SLEEPING 0
-#define MAX_DEVICES 5
-#define KEYBOARD 0x01
-#define DISPLAY 0x02
-#define NETWORK 0x04
 
 typedef struct sleep_t{
     uint8_t reason;
@@ -44,14 +25,6 @@ typedef struct task_t{
     uint8_t state;
     sleep_t sleep;
 }task_t;
-
-typedef struct{
-    volatile uint8_t *port;
-    volatile uint8_t cs;
-    volatile uint8_t *pin;
-    volatile uint8_t interrupt;
-    uint8_t device;
-}he10_t;
 
 #define SAVE_REGISTER() \
 asm volatile ( \
@@ -129,5 +102,7 @@ asm volatile ( \
     "pop r0 \n\t"\
 );
 
+
+void wait(uint8_t reason, uint16_t data);
 
 #endif
