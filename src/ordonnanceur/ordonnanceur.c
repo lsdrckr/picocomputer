@@ -254,46 +254,10 @@ void readSerial(){
     DDRD &= ~(1<<INT3);
 
     while(1){
-            uint8_t key = grabKey();
-            serialWrite(key);
-            wait(DELAY_SLEEPING, 20);
+            if(checkInterrupt(KEYBOARD)){
+                serialWrite('d');
+            }
     }
-    
-    // while(1){
-    //     _delay_ms(100);
-    // }
-
-    // DEBUG keyboard
-    // initSPI();
-    // DDRD &= ~(1<<INT3);
-    
-    // while(1){
-    //     selectSlaveSPI(&PORTD, SS4);
-    //     uint8_t response = transferSPI(0x00);
-    //     if(response == 0x01){
-    //         PORTD ^= (1<<SS5);
-    //     }
-    //     wait(DELAY_SLEEPING, 1000);
-    //     unselectSlaveSPI(&PORTD, SS4);
-    //     wait(DELAY_SLEEPING, 1000);
-
-//     initSPI();
-//     DDRD &= ~(1<<INT3);
-//     
-//     while(1){
-//         selectSlaveSPI(&PORTD, SS4);
-//         uint8_t response = transferSPI(0x01);
-//         if(response == 0x01){
-//             PORTD ^= (1<<SS5);
-//         }
-//         wait(DELAY_SLEEPING, 1000);
-//         unselectSlaveSPI(&PORTD, SS4);
-//         wait(DELAY_SLEEPING, 1000);
-
-        // if(PIND & (1<<INT3)){
-        //     PORTD ^= (1<<SS4);
-        // }          
-    // }
 }
 
 void writeSerial(){

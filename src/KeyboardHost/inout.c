@@ -2,6 +2,7 @@
 
 volatile uint8_t leds[NB_LED] = {PC7, PC6, PC5, PC4, PC3, PC2, PC1, PC0};
 buffer_t buffer;
+int sizeSendFlag;
 
 void initSPISlave() {
     // Configurer le port MISO comme sortie 
