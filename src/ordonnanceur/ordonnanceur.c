@@ -91,41 +91,41 @@ int indexOf(uint8_t device){
 void initConnectorsList(){
     uint8_t data;
     connectorsList[0].port = &PORTC;
-    connectorsList[0].pin = SS2;
-    connectorsList[0].pin = &PORTC;
+    connectorsList[0].cs = SS2;
+    connectorsList[0].pin = &PINC;
     connectorsList[0].interrupt = INT1;
     
     connectorsList[1].port = &PORTC;
-    connectorsList[1].pin = SS3;
-    connectorsList[0].pin = &PORTC;
+    connectorsList[1].cs = SS3;
+    connectorsList[0].pin = &PINC;
     connectorsList[0].interrupt = INT1;
     
     connectorsList[2].port = &PORTD;
-    connectorsList[2].pin = SS4;
-    connectorsList[0].pin = &PORTD;
+    connectorsList[2].cs = SS4;
+    connectorsList[0].pin = &PIND;
     connectorsList[0].interrupt = INT1;
     
     connectorsList[3].port = &PORTD;
-    connectorsList[3].pin = SS5;
-    connectorsList[0].pin = &PORTD;
+    connectorsList[3].cs = SS5;
+    connectorsList[0].pin = &PIND;
     connectorsList[0].interrupt = INT1;
     
     connectorsList[4].port = &PORTD;
-    connectorsList[4].pin = SS6;
-    connectorsList[0].pin = &PORTB;
+    connectorsList[4].cs = SS6;
+    connectorsList[0].pin = &PINB;
     connectorsList[0].interrupt = INT1;
     
     
     
     for(int i = 0; i<MAX_DEVICES; i++){
-        selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+        selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
         transferSPI(0x00);
         serialWrite(data+'0');
         wait(DELAY_SLEEPING,20);
         data = transferSPI(0x00);
         serialWrite(data+'0');
         connectorsList[i].device = data;
-        unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+        unselectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
         serialWrite('\r');
         serialWrite('\n');
     }
@@ -204,9 +204,9 @@ void serialWrite(uint8_t DataOut)
 uint8_t transferDataTo(uint8_t device, uint8_t data){
     uint8_t answer;
     int i = indexOf(device);
-    selectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
     answer = transferSPI(data);
-    unselectSlaveSPI(connectorsList[i].port, connectorsList[i].pin);
+    unselectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
     return answer;
 }
 
@@ -239,7 +239,10 @@ void grabKeys(uint8_t keyList[bufferSize()]){
 int checkInterrupt(uint8_t device){
     int i = indexOf(device);
     
-    return 0;
+    if (connectorsList[i].pin & (1<<connectorsList[i].interrupt)) return 0;
+    else if (connectorsList[i].pin & ~(1<<connectorsList[i].interrupt)) return 1;
+    
+    return -1;
 }
 
 void task0(){ // processus défault ne dort jamais
