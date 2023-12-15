@@ -89,8 +89,10 @@ void initConnectorsList(){
     for(int i = 0; i<MAX_DEVICES; i++){
         selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
         transferSPI(0x00);
-        wait(DELAY_SLEEPING,20);
+        _delay_ms(100);
+        // wait(DELAY_SLEEPING,20);
         data = transferSPI(0x00);
+        serialWrite(data+'0');
         connectorsList[i].device = data;
         unselectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
     }
@@ -99,6 +101,12 @@ void initConnectorsList(){
 void initDevice(){
     initSPI();
     initConnectorsList();
+}
+
+void getDeviceList(uint8_t deviceList[MAX_DEVICES]){
+    for (int i = 0; i < MAX_DEVICES; i++){
+        deviceList[i] = connectorsList[i].device;
+    }
 }
 
 int indexDevice(uint8_t device){

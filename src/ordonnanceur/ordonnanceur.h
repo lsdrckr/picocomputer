@@ -4,6 +4,9 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
+#include "device.h"
+#include "keyboard.h"
+#include "serial.h"
 
 #define BaudRate 9600
 #define MYUBRR (F_CPU / 16 / BaudRate) - 1

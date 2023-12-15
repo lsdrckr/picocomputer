@@ -1,5 +1,4 @@
 #include "ordonnanceur.h"
-#include "device.h"
 
 task_t task[NB_TASK];
 uint8_t currentTask=0;
@@ -95,8 +94,12 @@ void task0(){ // processus défault ne dort jamais
 
 void readSerial(){
     initSerial();
-    DDRD &= ~(1<<INT3);
-
+    initDevice();
+    // uint8_t deviceList[MAX_DEVICES];
+    // getDeviceList(deviceList);
+    // for(int i=0; i<MAX_DEVICES; i++){
+    //     serialWrite(deviceList[i]+'0');
+    // }
     while(1){
         if(checkInterrupt(KEYBOARD)){
             serialWrite(grabKey());

@@ -3,14 +3,20 @@ FCPU = 16000000
 
 CC = avr-gcc
 FLAGS = -mmcu=$(MMCU)
-CFLAGS = -Wall $(FLAGS) -DF_CPU=$(FCPU) -Os -I../libs
+CFLAGS = -Wall $(FLAGS) -DF_CPU=$(FCPU) -Os -Ilibs
 LDFLAGS = $(FLAGS) -Llibs -ldevice
 
 TARGET = ordonnanceur
 
-all: $(TARGET).hex
+.PHONY: all libs
+
+all: libs $(TARGET).hex
+
+libs: 
+	make -C libs
 
 clean:
+	make -C libs clean
 	rm -f *.o $(TARGET).hex $(TARGET).elf $(TARGET)
 
 $(TARGET).o: $(TARGET).c $(TARGET).h
@@ -22,6 +28,6 @@ $(TARGET).elf: $(TARGET).o
 $(TARGET).hex: $(TARGET).elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
-upload: $(TARGET).hex
+upload: all
 	stty -F /dev/ttyACM0 hupcl
-	avrdude -F -v -p $(MMCU) -c stk500v1 -b 115200 -P /dev/ttyACM0 -U flash:w:$<
+	avrdude -F -v -p $(MMCU) -c stk500v1 -b 115200 -P /dev/ttyACM0 -U flash:w:$(TARGET).hex

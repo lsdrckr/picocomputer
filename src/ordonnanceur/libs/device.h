@@ -2,7 +2,8 @@
 #define __DEVICE_H__
 
 #include <avr/io.h>
-#include "ordonnanceur.h"
+#include "serial.h"
+#include <util/delay.h>
 
 #define MISO    PB4
 #define MOSI    PB3
@@ -35,6 +36,7 @@ typedef struct{
 extern he10_t connectorsList[MAX_DEVICES];
 
 void initDevice(void);
+void getDeviceList(uint8_t deviceList[MAX_DEVICES]);
 uint8_t transferDataTo(uint8_t device, uint8_t data);
 int checkInterrupt(uint8_t device);
 #endif
