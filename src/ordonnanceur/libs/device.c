@@ -122,8 +122,6 @@ uint8_t transferDataTo(uint8_t device, uint8_t data){
 int checkInterrupt(uint8_t device){
     int i = indexDevice(device);
     
-    if (*(connectorsList[i].pin) & (1<<connectorsList[i].interrupt)) return 0;
-    else if (*(connectorsList[i].pin) & ~(1<<connectorsList[i].interrupt)) return 1;
-    
-    return -1;
+    if (*(connectorsList[i].pin) & (1<<connectorsList[i].interrupt)) return 1;
+    return 0;
 }
