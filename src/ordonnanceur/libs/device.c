@@ -32,10 +32,11 @@ void initSPI(){
     
     SPCR |= (1 << SPE) | (1 << MSTR);
 
-    // Configurer la vitesse de transmission Diviseur 128 SPR1 1 SPR0 1 SPI2X 0
+    // Configurer la vitesse de transmission Diviseur 4 SPR1 1 SPR0 1 SPI2X 0
     
-    SPCR |= (1 << SPR1); 
+    SPCR &= ~(1 << SPR1); 
     SPCR &= ~(1 << SPR0);
+    SPSR &= ~(1 << SPI2X);
 }
 
 void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
@@ -89,12 +90,14 @@ void initConnectorsList(){
     for(int i = 0; i<MAX_DEVICES; i++){
         selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
         transferSPI(0x00);
-        _delay_ms(100);
+        _delay_ms(5);
         // wait(DELAY_SLEEPING,20);
         data = transferSPI(0x00);
         serialWrite(data+'0');
         connectorsList[i].device = data;
         unselectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
+        serialWrite('\n');
+        serialWrite('\r');
     }
 }
 

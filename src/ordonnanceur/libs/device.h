@@ -33,7 +33,7 @@ typedef struct{
     uint8_t device;
 }he10_t;
 
-extern he10_t connectorsList[MAX_DEVICES];
+// extern he10_t connectorsList[MAX_DEVICES];
 
 void initDevice(void);
 void getDeviceList(uint8_t deviceList[MAX_DEVICES]);
