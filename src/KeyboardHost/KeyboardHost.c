@@ -195,7 +195,7 @@ char lowerKey(char key){
 		case '1':
 			return '&';
 		case '2':
-			return 'e'; // char é
+			return 0xe9; // char é
 		case '3':
 			return '"';
 		case '4':
@@ -205,30 +205,30 @@ char lowerKey(char key){
 		case '6':
 			return '-';
 		case '7':
-			return 'e'; // char è
+			return 0xe8; // char è
 		case '8':
 			return '_';
 		case '9':
-			return 'c'; // char ç
+			return 0xe7; // char ç
 		case '0':
-			return 'a'; // char à
+			return 0xe0; // char à
 		case '?':
 			return ',';
 		case '.':
 			return ';';
 		case '/':
 			return ':';
-		case 0x80: // char §
+		case 0xa7: // char §
 			return '!';
 		case '%':
-			return 'u'; // char ù
-		case 0x81: // char µ
+			return 0xf9; // char ù
+		case 0xb5: // char µ
 			return '*';
-		case 0x82: // char ¨
+		case 0xa8: // char ¨
 			return '^';
-		case 0x83: // char £
+		case 0xa3: // char £
 			return '$';
-		case 0x84: // char °
+		case 0xb0: // char °
 			return ')';
 		case '+':
 			return '=';
@@ -249,7 +249,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 	{
 		PressedKey = (KeyCode - HID_KEYBOARD_SC_A) + 'A';
 	}
-		else if ((KeyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION) &
+	else if ((KeyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION) &
 			(KeyCode  < HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS))
 	{
 		PressedKey = (KeyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + '1';
@@ -353,7 +353,7 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 			PressedKey = '/';
 			break;
 		case '?':
-			PressedKey = 0x80; // char §
+			PressedKey = 0xa7; // char §
 			break;
 		case ':':
 			PressedKey = 'M';
@@ -362,16 +362,16 @@ void processKeyDown(uint8_t KeyCode, uint8_t Modifier){
 			PressedKey = '%';
 			break;
 		case '|':
-			PressedKey = 0x81; // char µ
+			PressedKey = 0xb5; // char µ
 			break;
 		case '{':
-			PressedKey = 0x82; // char ¨
+			PressedKey = 0xa8; // char ¨
 			break;
 		case '}': 
-			PressedKey = 0x83; // char £
+			PressedKey = 0xa3; // char £
 			break;
 		case '_':
-			PressedKey = 0x84; // char °
+			PressedKey = 0xb0; // char °
 		default:
 			break;
 	}
