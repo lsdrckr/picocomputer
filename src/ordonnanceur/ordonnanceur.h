@@ -8,9 +8,6 @@
 #include "keyboard.h"
 #include "serial.h"
 
-#define BaudRate 9600
-#define MYUBRR (F_CPU / 16 / BaudRate) - 1
-
 #define CTC1    WGM12
 #define NB_TASK 5
 #define SLEEP   0

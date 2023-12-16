@@ -57,35 +57,6 @@ void wait(uint8_t reason, uint16_t data){
     TIMER1_COMPA_vect();
 }
 
-
-void initSerial(void)
-{
-    // Serial Initialization
-    /*Set baud rate 9600 */
-    UBRR0H = (unsigned char)((MYUBRR) >> 8);
-    UBRR0L = (unsigned char)MYUBRR;
-    /* Enable receiver and transmitter */
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0);
-    /* Frame format: 8data, No parity, 1stop bit */
-    UCSR0C = (3 << UCSZ00);
-}
-
-unsigned char serialCheckTxReady(void)
-{
-    return (UCSR0A & _BV(UDRE0)); // nonzero if transmit register is ready to receive new data.
-}
-
-void serialWrite(uint8_t DataOut)
-{
-    while (serialCheckTxReady() == 0) // while NOT ready to transmit
-    {
-        ;
-        ;
-    }
-    UDR0 = DataOut;
-}
-
-
 void task0(){ // processus défault ne dort jamais
     while(1){
         _delay_ms(100);
@@ -93,19 +64,18 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
+    cli();
     initSerial();
     initDevice();
-    // uint8_t deviceList[MAX_DEVICES];
-    // getDeviceList(deviceList);
-    // for(int i=0; i<MAX_DEVICES; i++){
-    //     serialWrite(deviceList[i]+'0');
-    // }
     while(1){
         if(checkInterrupt(KEYBOARD)){
+            serialWrite('a');
+            cli();
             serialWrite(grabKey());
-            grabKey();
+            sei();
         }
     }
+    sei();
 }
 
 void writeSerial(){

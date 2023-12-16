@@ -5,9 +5,9 @@ CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -I../
 
 LIBRARY = libdevice.a
 
-SRCS = device.c keyboard.c
+SRCS = device.c keyboard.c serial.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = device.h keyboard.h
+HEADERS = device.h keyboard.h serial.h
 
 .PHONY: all clean
 

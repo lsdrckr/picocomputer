@@ -8,7 +8,7 @@ LDFLAGS = $(FLAGS) -Llibs -ldevice
 
 TARGET = ordonnanceur
 
-.PHONY: all libs
+.PHONY: all
 
 all: libs $(TARGET).hex
 
