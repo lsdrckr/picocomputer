@@ -8,18 +8,16 @@ LDFLAGS = $(FLAGS) -Llibs -ldevice
 
 TARGET = ordonnanceur
 
-.PHONY: all
-
 all: libs $(TARGET).hex
 
-libs: 
-	make -C libs
+libdevice.a: 
+	$(MAKE) -C libs
 
 clean:
 	make -C libs clean
 	rm -f *.o $(TARGET).hex $(TARGET).elf $(TARGET)
 
-$(TARGET).o: $(TARGET).c $(TARGET).h
+$(TARGET).o: $(TARGET).c $(TARGET).h libdevice.a
 	$(CC) $(CFLAGS) -c -Wall -I. $< -o $@
 
 $(TARGET).elf: $(TARGET).o

@@ -8,4 +8,5 @@
 
 void initSerial(void);
 void serialWrite(uint8_t DataOut);
+void serialPrint(char *s);
 #endif 

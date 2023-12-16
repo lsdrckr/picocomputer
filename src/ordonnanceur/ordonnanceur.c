@@ -67,9 +67,11 @@ void readSerial(){
     initSerial();
     initDevice();
     while(1){
-        // if(checkInterrupt(KEYBOARD)){
-        //     serialWrite(grabKey());
-        // }
+        cli();
+        if(checkInterrupt(KEYBOARD)){
+            serialWrite(grabKey());
+        }
+        sei();
     }
 }
 

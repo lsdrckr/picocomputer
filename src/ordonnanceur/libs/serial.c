@@ -26,3 +26,11 @@ void serialWrite(uint8_t DataOut)
     }
     UDR0 = DataOut;
 }
+
+void serialPrint(char *s){
+    int i = 0;
+    while(s[i] != '\0'){
+        serialWrite(s[i]);
+        i++;
+    }
+}
