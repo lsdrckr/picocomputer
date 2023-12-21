@@ -6,7 +6,7 @@ FLAGS = -mmcu=$(MMCU)
 CFLAGS = -Wall $(FLAGS) -DF_CPU=$(FCPU) -Os -Ilibs
 LDFLAGS = $(FLAGS) -Llibs -ldevice
 
-TARGET = ordonnanceur
+TARGET = test
 
 all: libs $(TARGET).hex
 

@@ -20,4 +20,10 @@
 #define SLEEP   0
 #define AWAKE   1
 
+void initSPI();
+void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){;
+void unselectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss);
+uint8_t transferSPI(uint8_t data);
+int main();
+
 #endif
