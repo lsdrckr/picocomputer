@@ -91,8 +91,9 @@ void initConnectorsList(){
 
     for(int i = 0; i<MAX_DEVICES; i++){
         selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
-        transferSPI(0x00);
-        data = transferSPI(0x00);
+        do{
+            data = transferSPI(0x00);
+        }while (data == 0xff);
         serialWrite(data+'0');
         connectorsList[i].device = data;
         unselectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);

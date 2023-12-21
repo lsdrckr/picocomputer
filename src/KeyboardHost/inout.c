@@ -133,8 +133,10 @@ void keyHandler(char key){
 
 ISR(SPI_STC_vect) {
     uint8_t receivedData = SPDR;
+    SPDR = 0xff;
     switch (receivedData){
         case 0x00:
+            // printLeds(0xff);
             SPDR = 0x01;
             break;
         case 0x01:
