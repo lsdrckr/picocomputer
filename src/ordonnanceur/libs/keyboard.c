@@ -17,7 +17,7 @@ uint8_t grabKey(){
     
     //Attente de la fin de la tâche de la carte
     do{
-        data = transferDataTo(KEYBOARD, 0x55);
+        data = transferDataTo(KEYBOARD, 0xff);
     }while(data == 0xff){};
 
     key = data
