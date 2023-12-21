@@ -35,8 +35,8 @@ void initSPI(){
     // Configurer la vitesse de transmission Diviseur 128 SPR1 1 SPR0 1 SPI2X 0
     
     SPCR |= (1 << SPR1); 
-    SPCR |= (1 << SPR0);
-    SPSR |= (1 << SPI2X);
+    SPCR &= ~(1 << SPR0);
+    // SPSR |= (1 << SPI2X);
 }
 
 void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){

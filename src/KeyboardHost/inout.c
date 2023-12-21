@@ -3,6 +3,7 @@
 volatile uint8_t leds[NB_LED] = {PC7, PC6, PC5, PC4, PC3, PC2, PC1, PC0};
 buffer_t buffer;
 int sizeSendFlag;
+int enqueueFlag;
 
 void initSPISlave() {
     // Configurer le port MISO comme sortie 
@@ -63,15 +64,18 @@ uint8_t sizeBuffer(){
 }
 
 void enqueue(char key){
+    enqueueFlag = 1;
     if (isFull()) {
         return;
     }
     
     buffer.tail = (buffer.tail + 1) % MAX_DATA;
+
     buffer.data[buffer.tail] = key;
     if (isEmpty()) {
         buffer.head = 0;
     }
+    enqueueFlag = 0;
 }
 
 char dequeue(){
@@ -128,7 +132,6 @@ void keyHandler(char key){
 }
 
 ISR(SPI_STC_vect) {
-    cli();
     uint8_t receivedData = SPDR;
     switch (receivedData){
         case 0x00:
@@ -140,18 +143,21 @@ ISR(SPI_STC_vect) {
                 sizeSendFlag = 1;
                 break;
             }
-            SPDR = dequeue();
-            if(!sizeBuffer()){
-                setLowOutput(&PORTB, INT);
-                sizeSendFlag = 0;
+            if(!enqueueFlag){
+                SPDR = dequeue();
+                if(!sizeBuffer()){
+                    setLowOutput(&PORTB, INT);
+                    sizeSendFlag = 0;
+                }
             }
             break;
         default:
-            SPDR = dequeue();
-            if(!sizeBuffer()){
-                setLowOutput(&PORTB, INT);
+            if(!enqueueFlag){
+                SPDR = dequeue();
+                if(!sizeBuffer()){
+                    setLowOutput(&PORTB, INT);
+                }
             }
             break;
     }
-    sei();
 }

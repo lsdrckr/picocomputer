@@ -69,13 +69,7 @@ void readSerial(){
     while(1){
         cli();
         if(checkInterrupt(KEYBOARD)){
-            uint8_t buffer_size = bufferSize();
-            // uint8_t keyList[buffer_size];
-            // grabKeys(keyList, buffer_size-1);
-            // keyList[buffer_size - 1] = '\0';
-            serialWrite(buffer_size+'0');
-            serialWrite('\n');
-            serialWrite('\r');
+            serialWrite(grabKey());
         }
         sei();
     }
