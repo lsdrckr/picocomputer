@@ -18,10 +18,8 @@ uint8_t grabKey(){
     return key;
 }
 
-void grabKeys(uint8_t keyList[bufferSize()]){
-    uint8_t buffer_size = bufferSize();
-    
-    for (int i = 0; i<buffer_size; i++){
+void grabKeys(uint8_t keyList[], uint8_t size){    
+    for (int i = 0; i<size; i++){
         //_delay_ms(100);
         wait(DELAY_SLEEPING, 20);
         uint8_t buffer = transferDataTo(KEYBOARD, 0x00);
