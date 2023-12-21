@@ -5,6 +5,6 @@
 
 uint8_t bufferSize(void);
 uint8_t grabKey(void);
-void grabKeys(uint8_t keyList[bufferSize()]);
+void grabKeys(uint8_t keyList[], uint8_t size);
 
 #endif
