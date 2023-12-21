@@ -4,6 +4,7 @@
 #include <avr/io.h>
 #include "serial.h"
 #include <util/delay.h>
+#include "ordonnanceur.h"
 
 #define MISO    PB4
 #define MOSI    PB3

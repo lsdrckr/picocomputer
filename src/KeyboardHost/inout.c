@@ -66,13 +66,11 @@ void enqueue(char key){
     if (isFull()) {
         return;
     }
-
+    buffer.tail = (buffer.tail + 1) % MAX_DATA;
+    buffer.data[buffer.tail] = key;
     if (isEmpty()) {
         buffer.head = 0;
     }
-
-    buffer.tail = (buffer.tail + 1) % MAX_DATA;
-    buffer.data[buffer.tail] = key;
 }
 
 char dequeue(){
@@ -129,6 +127,7 @@ void keyHandler(char key){
 }
 
 ISR(SPI_STC_vect) {
+    cli();
     uint8_t receivedData = SPDR;
     switch (receivedData){
         case 0x00: 
@@ -153,4 +152,5 @@ ISR(SPI_STC_vect) {
             }
             break;
     }
+    sei();
 }

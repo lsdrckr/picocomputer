@@ -92,8 +92,8 @@ void initConnectorsList(){
     for(int i = 0; i<MAX_DEVICES; i++){
         selectSlaveSPI(connectorsList[i].port, connectorsList[i].cs);
         transferSPI(0x00);
-        _delay_ms(5);
-        // wait(DELAY_SLEEPING,20);
+        //_delay_ms(5);
+        wait(DELAY_SLEEPING,20);
         data = transferSPI(0x00);
         serialWrite(data+'0');
         connectorsList[i].device = data;
