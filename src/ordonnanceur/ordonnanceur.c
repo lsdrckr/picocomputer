@@ -63,8 +63,7 @@ void task0(){ // processus défault ne dort jamais
     }
 }
 
-void readSerial(){
-    cli();
+void taskClavier(){
     initSerial();
     initDevice();
     while(1){
@@ -74,41 +73,21 @@ void readSerial(){
     }
 }
 
-void writeSerial(){
+void task1(){
         while(1){
         _delay_ms(100);
     }
 }
 
-void WriteMatrice(){ 
+void task2(){ 
     while(1){
         _delay_ms(100);
     }
 }
 
-void Write7Segment(){
-    // while(1){
-    //     _delay_ms(100);
-    // // }
-    counter = 0;
-    initSPI();
+void task3(){
     while(1){
-        //Calcul
-        counter++;
-        if (counter > 9999) counter = 0;
-        uint8_t digit1 = counter/1000;
-        uint8_t digit2 = (counter - digit1*1000) / 100;
-        uint8_t digit3 = (counter - digit1*1000 - digit2*100) / 10;
-        uint8_t digit4 = (counter - digit1*1000 - digit2*100 - digit3*10);
-
-        selectSlaveSPI(&PORTC, SS3);
-        transferSPI(0x76);
-        transferSPI(digit1);
-        transferSPI(digit2);
-        transferSPI(digit3);
-        transferSPI(digit4);
-        wait(DELAY_SLEEPING, 20);
-        unselectSlaveSPI(&PORTC, SS3);
+        _delay_ms(100);
     }
 }
 
@@ -146,11 +125,10 @@ void setup(){
     
     // Setup des tâches
     task[0].addr = &task0;
-    task[1].addr = &readSerial;
-    task[2].addr = &writeSerial;
-    task[3].addr = &WriteMatrice;
-    task[4].addr = &Write7Segment;
-    
+    task[1].addr = &task1;
+    task[2].addr = &task2;
+    task[3].addr = &task3;
+    task[4].addr = &taskClavier;
     
     task[0].sp = 0x0300;
     task[1].sp = 0x0400;

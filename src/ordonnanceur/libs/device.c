@@ -33,10 +33,13 @@ void initSPI(){
     SPCR |= (1 << SPE) | (1 << MSTR);
 
     // Configurer la vitesse de transmission
-    
-    //4MHz diviseur 4
 
-    //500kHz diviseur 32
+    // 8MHz diviseur 2
+    // SPSR = |= (1<<SPI2X);
+
+    // 4MHz diviseur 4
+
+    // 500kHz diviseur 32
     // SPCR |= (1 << SPR1); 
     // SPCR &= ~(1 << SPR0);
     // SPSR |= (1 << SPI2X);

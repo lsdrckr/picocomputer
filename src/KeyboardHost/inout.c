@@ -3,8 +3,6 @@
 volatile uint8_t leds[NB_LED] = {PC7, PC6, PC5, PC4, PC3, PC2, PC1, PC0};
 buffer_t buffer;
 int sizeSendFlag = 0;
-int isEnqueuing = 0;
-int spiRequest = 0;
 
 void initSPISlave() {
     // Configurer le port MISO comme sortie 
@@ -65,7 +63,6 @@ uint8_t sizeBuffer(){
 }
 
 void enqueue(char key){
-    isEnqueuing = 1;
     if (isFull()) {
         return;
     }
@@ -76,12 +73,6 @@ void enqueue(char key){
     if (isEmpty()) {
         buffer.head = 0;
     }
-    
-    for(int i=0; i<spiRequest; i++){
-        spiAnswer();
-    }
-    spiRequest = 0;
-    isEnqueuing = 0;
 }
 
 char dequeue(){
@@ -136,15 +127,7 @@ void keyHandler(char key){
 }
 
 ISR(SPI_STC_vect) {
-    if(isEnqueuing){
-        spiRequest ++;
-    }else{
-        spiAnswer();
-    }
-}
-
-void spiAnswer(){
-        uint8_t receivedData = SPDR;
+    uint8_t receivedData = SPDR;
     switch (receivedData){
         case 0x00:
             SPDR = 0x01;
