@@ -2,8 +2,9 @@
 
 volatile uint8_t leds[NB_LED] = {PC7, PC6, PC5, PC4, PC3, PC2, PC1, PC0};
 buffer_t buffer;
-int sizeSendFlag;
-int enqueueFlag;
+int sizeSendFlag = 0;
+int isEnqueuing = 0;
+int spiRequest = 0;
 
 void initSPISlave() {
     // Configurer le port MISO comme sortie 
@@ -64,7 +65,7 @@ uint8_t sizeBuffer(){
 }
 
 void enqueue(char key){
-    enqueueFlag = 1;
+    isEnqueuing = 1;
     if (isFull()) {
         return;
     }
@@ -75,14 +76,18 @@ void enqueue(char key){
     if (isEmpty()) {
         buffer.head = 0;
     }
-    enqueueFlag = 0;
+    
+    for(int i=0; i<spiRequest; i++){
+        spiAnswer();
+    }
+    spiRequest = 0;
+    isEnqueuing = 0;
 }
 
 char dequeue(){
     if (isEmpty()) {
         return 0x00;
     }
-
     char key = buffer.data[buffer.head];
 
     if (buffer.head == buffer.tail) {
@@ -92,7 +97,6 @@ char dequeue(){
     } else {
         buffer.head = (buffer.head + 1) % MAX_DATA;
     }
-
     return key;
 }
 
@@ -132,11 +136,17 @@ void keyHandler(char key){
 }
 
 ISR(SPI_STC_vect) {
-    uint8_t receivedData = SPDR;
-    SPDR = 0xff;
+    if(isEnqueuing){
+        spiRequest ++;
+    }else{
+        spiAnswer();
+    }
+}
+
+void spiAnswer(){
+        uint8_t receivedData = SPDR;
     switch (receivedData){
         case 0x00:
-            // printLeds(0xff);
             SPDR = 0x01;
             break;
         case 0x01:
@@ -145,20 +155,16 @@ ISR(SPI_STC_vect) {
                 sizeSendFlag = 1;
                 break;
             }
-            if(!enqueueFlag){
-                SPDR = dequeue();
-                if(!sizeBuffer()){
-                    setLowOutput(&PORTB, INT);
-                    sizeSendFlag = 0;
-                }
+            SPDR = dequeue();
+            if(!sizeBuffer()){
+                setLowOutput(&PORTB, INT);
+                sizeSendFlag = 0;                
             }
             break;
         default:
-            if(!enqueueFlag){
-                SPDR = dequeue();
-                if(!sizeBuffer()){
-                    setLowOutput(&PORTB, INT);
-                }
+            SPDR = dequeue();
+            if(!sizeBuffer()){
+                setLowOutput(&PORTB, INT);
             }
             break;
     }

@@ -64,14 +64,13 @@ void task0(){ // processus défault ne dort jamais
 }
 
 void readSerial(){
+    cli();
     initSerial();
     initDevice();
     while(1){
-        cli();
         if(checkInterrupt(KEYBOARD)){
             serialWrite(grabKey());
         }
-        sei();
     }
 }
 
