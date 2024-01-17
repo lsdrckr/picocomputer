@@ -2,8 +2,6 @@
 
 task_t task[NB_TASK];
 uint8_t currentTask=0;
-uint8_t keyAscii = 'a';
-int counter;
 
 void scheduler (){
     for(int i=0; i<NB_TASK; i++){
