@@ -36,6 +36,10 @@ typedef struct{
 
 // extern he10_t connectorsList[MAX_DEVICES];
 
+void initSPI(void);
+void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss);
+void unselectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss);
+uint8_t transferSPI(uint8_t data);
 void initDevice(void);
 void getDeviceList(uint8_t deviceList[MAX_DEVICES]);
 uint8_t transferDataTo(uint8_t device, uint8_t data);
