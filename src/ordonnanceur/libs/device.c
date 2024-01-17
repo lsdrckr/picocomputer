@@ -32,11 +32,22 @@ void initSPI(){
     
     SPCR |= (1 << SPE) | (1 << MSTR);
 
-    // Configurer la vitesse de transmission Diviseur 128 SPR1 1 SPR0 1 SPI2X 0
+    // Configurer la vitesse de transmission
     
-    SPCR &= ~(1 << SPR1); 
+    //500kHz diviseur 32
+    SPCR |= (1 << SPR1); 
     SPCR &= ~(1 << SPR0);
-    SPSR &= ~(1 << SPI2X);
+    SPSR |= (1 << SPI2X);
+
+    // 250kHz diviseur 64
+    // SPCR |= (1 << SPR1); 
+    // SPCR &= ~(1 << SPR0);
+    // SPSR &= ~(1 << SPI2X);
+
+    // 125kHz diviseur 128
+    // SPCR |= (1 << SPR1); 
+    // SPCR &= ~(1 << SPR0);
+    // SPSR |= (1 << SPI2X);
 }
 
 void selectSlaveSPI(volatile uint8_t *ssPort, volatile uint8_t ss){
