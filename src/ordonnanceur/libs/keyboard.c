@@ -5,10 +5,7 @@ uint8_t bufferSize(){
     
     transferDataTo(KEYBOARD, 0X01);
     wait(DELAY_SLEEPING,20);
-    data = transferDataTo(KEYBOARD, 0xff);
-    
-    buffer_size = data;
-    return buffer_size;
+    return transferDataTo(KEYBOARD, 0xff);
 }
 
 uint8_t grabKey(){

@@ -135,13 +135,13 @@ ISR(SPI_STC_vect) {
         case 0x01:
             if(!sizeSendFlag){
                 SPDR = sizeBuffer();
-                sizeSendFlag = 1;
+                sizeSendFlag = 0;
                 break;
             }
             SPDR = dequeue();
             if(!sizeBuffer()){
                 setLowOutput(&PORTB, INT);
-                sizeSendFlag = 0;                
+                sizeSendFlag = 1;                
             }
             break;
         default:
